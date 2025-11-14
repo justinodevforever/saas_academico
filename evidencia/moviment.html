@@ -1,0 +1,449 @@
+{% extends 'principal.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% load static %}
+        <script src="{% static 'js/jquery.inputmask.min.js' %}"></script>
+        <style>
+            :root {
+                --amarelo: #ffc107;
+                --azul-escuro: #1A3A52;
+                --azul-medio: #2E5C7E;
+                --cinza-claro: #F5F7FA;
+                --branco: #FFFFFF;
+            }
+
+
+            .container-create_moviment {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background: var(--branco);
+                border-radius: 10px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                margin-bottom: 10px;
+            }
+
+            .header {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+                padding: 40px ;
+                text-align: center;
+                position: relative;
+                border-radius: 10px 10px 0px 0px;
+            }
+
+            .header h1 {
+                color: var(--branco);
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                color: var(--amarelo);
+                font-size: 0.95em;
+            }
+
+            .profile-picture-section {
+                padding: 40px;
+                text-align: center;
+                background: var(--cinza-claro);
+                border-bottom: 3px solid var(--amarelo);
+            }
+
+            .profile-picture-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+
+            .profile-picture {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                border: 5px solid var(--amarelo);
+                object-fit: cover;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .change-photo-btn {
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                background: var(--amarelo);
+                color: var(--azul-escuro);
+                border: none;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 1.2em;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+            }
+
+            .change-photo-btn:hover {
+                transform: scale(1.1);
+                background: var(--azul-medio);
+                color: var(--amarelo);
+            }
+
+            .form-section {
+                padding: 40px;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+                margin-bottom: 25px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                color: var(--azul-escuro);
+                font-weight: 600;
+                margin-bottom: 8px;
+                font-size: 0.95em;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 12px 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                font-size: 1em;
+                transition: all 0.3s ease;
+                font-family: inherit;
+            }
+
+            .form-group input:focus,
+            .form-group textarea:focus,
+            .form-group select:focus {
+                outline: none;
+                border-color: var(--amarelo);
+                box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .section-title {
+                color: var(--azul-escuro);
+                font-size: 1.3em;
+                margin: 30px 0 20px 0;
+                padding-bottom: 10px;
+                border-bottom: 2px solid var(--amarelo);
+                display: flex;
+                align-items: center;
+            }
+
+            .section-title::before {
+                content: '';
+                width: 4px;
+                height: 24px;
+                background: var(--amarelo);
+                margin-right: 12px;
+            }
+        
+            .password-toggle {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+                color: var(--azul-medio);
+                font-size: 0.9em;
+                cursor: pointer;
+            }
+
+            .password-toggle input[type="checkbox"] {
+                margin-right: 8px;
+            }
+
+            @media (max-width: 768px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 1.5em;
+                }
+
+                .form-section {
+                    padding: 30px 20px;
+                }
+
+                .button-group {
+                    flex-direction: column;
+                }
+            }
+
+            .alert {
+                padding: 15px 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .alert-info {
+                background: rgba(255, 193, 7, 0.1);
+                border-left: 4px solid var(--amarelo);
+                color: var(--azul-escuro);
+            }
+        </style>
+    </head>
+    <body>
+        <div style="width: 80%; height: 100%;">
+            <form action="{% url 'moviment_evidence' evidencia.id %}" method="post" class="container-create_moviment">
+
+                <div class="header d-flex justify-content-between ">
+                    <h3 class="text-warning">Movimentação da evidência</h3>
+                    
+                    <a href="/list_evidence/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                </div>
+
+                {% csrf_token %}
+
+                <div class="form-section">
+
+                    <div class="alert alert-info">
+                        <span>ℹ️</span>
+                        <span>Preencha todos os campos obrigatórios para salvar as alterações</span>
+                    </div>
+                
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                            
+                                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                                    <strong>{{message}}</strong>
+                                    <button type="button" class="btn-close"
+                                    data-bs-dismiss="alert" aria-label="close"
+                                    ></button>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>{{message}}</strong>
+                                    <button type="button" class="btn-close"
+                                    data-bs-dismiss="alert" aria-label="close"
+                                    ></button>
+                                </div>
+                            {% endif %}
+                        
+                        {% endfor %}
+                    {% endif %}
+                
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="local_destino" >
+                                <span >
+                                    Local de destino
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <input type="text" name="local_destino" 
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                            {% if form.local_destino.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.local_destino.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="local_origem" >Local de origem</label>
+                            
+                            <input type="text" name="local_origem" 
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                            {% if form.local_origem.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.local_origem.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="responsavel_atual">
+                                <span >
+                                    Responsável atual 
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <select name="responsavel_atual" >
+                                <option value="">Selecione </option>
+                                {% for user in users %}
+                                    <option value="{{user.id}}">{{user.get_full_name}}</option>
+                                {% endfor %}
+                            
+                            </select>
+
+                            {% if form.responsavel_atual.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.responsavel_atual.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="responsavel_anterior">
+                                <span >
+                                    Responsável anterior: 
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+                            
+                            <select name="responsavel_anterior" >
+                                <option value="">Selecione</option>
+                                {% for user in users %}
+                                    <option value="{{user.id}}">{{user.get_full_name}}</option>
+                                {% endfor %}
+                        
+                            </select>
+
+                            {% if form.responsavel_anterior.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.responsavel_anterior.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                
+                        <div class="form-group">
+                            
+                            <label for="tipo_movimentacao">
+                                <span >
+                                    Tipo de movimentação
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <select name="tipo_movimentacao" >
+                                <option value="">Selecione</option>
+                                <option value="coletada">Coletada</option>
+                                <option value="analise">Análise</option>
+                                <option value="armazenamento">Armazenamento</option>
+                                <option value="transferencia">Transferência</option>
+                                <option value="devolvida">Devolvida</option>                
+                                <option value="destruicao">Destruição</option>                
+                            </select>
+
+                            {% if form.tipo_movimentacao.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.tipo_movimentacao.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="observacoes">observacoes</label>
+
+                            <textarea  name="observacoes"></textarea>
+
+                            {% if form.observacoes.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.observacoes.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="motivo">
+                                <span >
+                                    Motivo
+                                <span class="text-danger">*</span>
+                                </span>
+                            </label>
+                            
+                            <textarea  name="motivo" ></textarea>
+
+                            {% if form.motivo.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.motivo.errors}}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="width: 80%;">
+                        Cadastrar
+                    </button>
+
+                </div>
+            </form>
+        </div>
+        <script>
+            function formatDecimal(input, min, max) {
+              let value = input.value.replace(',', '.'); // troca vírgula por ponto
+              if (isNaN(value)) {
+                input.value = "";
+                return;
+              }
+              let num = parseFloat(value).toFixed(2); // fixa 8 casas
+              if (num < min || num > max) {
+                alert("Valor fora do intervalo permitido");
+                input.value = "";
+              } else {
+                input.value = num;
+              }
+            }
+            function formatDecimalPeso(input, min, max) {
+              let value = input.value.replace(',', '.'); // troca vírgula por ponto
+              if (isNaN(value)) {
+                input.value = "";
+                return;
+              }
+              let num = parseFloat(value).toFixed(3); // fixa 8 casas
+              if (num < min || num > max) {
+                alert("Valor fora do intervalo permitido");
+                input.value = "";
+              } else {
+                input.value = num;
+              }
+            }
+            
+            document.getElementById("la").addEventListener("blur", function(){
+                formatDecimalPeso(this, -90, 90);
+            });
+            
+            document.getElementById("lo").addEventListener("blur", function(){
+              formatDecimal(this, -180, 180);
+            });
+            </script>
+            
+    </body>
+    </html>
+{% endblock content %}

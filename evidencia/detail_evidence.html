@@ -1,0 +1,178 @@
+{% extends 'principal.html' %}
+
+
+
+{% block content %}
+
+<div class="column" style="display: flex; gap: 10px; padding: 20px; width: 100%;
+     justify-content: center;">
+    <div class="col-md-8" style="width: 100%;">
+        <div class="card" style="width: 97%;">
+            <div class="d-flex justify-content-between card-header bg-primary text-white" >
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Informações do evidência
+                </h5>
+                <a href="/list_evidence/" class="btn" 
+                style="background: #1e3a5f; color: #fff;">
+                    lista
+                </a>
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Evidência número:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.numero_evidencia }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Caso número:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.caso.numero_caso }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Tipo de evidência:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.tipo.nome }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Data da coleta:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.data_coleta}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Local da coleta:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.local_coleta|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Coletada por:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.coletado_por.get_full_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Status:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.status }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Custódia atual:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.custodia_atual.get_full_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Local armazenado:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.local_armazenamento }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Peso:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.peso|default:"Sem Informações" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Dimensões:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.dimensoes|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Cor:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.cor|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Material:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.matrial|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Estado da conservação:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.estado_conservacao|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Valir estimado:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.valor_estimado|default:"Sem Informações"}}</div>
+                </div>
+              
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Está lacrada?:</strong></div>
+                    <div class="col-sm-9">
+                        {% if evidencia.lacrada == True %}
+                            <span class="bagde bg-success">Sim</span>
+                        {% else %}
+                            <span class="badge bg-danger">Não</span>
+                        {% endif %}
+
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Número de lacre:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.numero_lacre|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Observações:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.observacoes|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Descrição:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.descricao|default:"Sem Informações"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Data de criação:</strong></div>
+                    <div class="col-sm-9">{{ evidencia.data_criacao|default:"Sem Informações"}}</div>
+                </div>
+                
+            </div>
+
+            <h4 style="margin-left: 40px;">Movimentação da evidência</h4>
+            <hr>
+
+            <div class="card-body">
+
+                {% for mov in movimentos %}
+                
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Tipo de Movimentação:</strong></div>
+                        <div class="col-sm-9">{{ mov.get_tipo_movimentacao_display|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Data de Movimentação:</strong></div>
+                        <div class="col-sm-9">{{ mov.data_movimentacao|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Responsável anterior:</strong></div>
+                        <div class="col-sm-9">{{ mov.responsavel_anterior.get_full_name|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Responsável atual:</strong></div>
+                        <div class="col-sm-9">{{ mov.responsavel_atual.get_full_name|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Local de origem:</strong></div>
+                        <div class="col-sm-9">{{ mov.local_origem|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Local de destino:</strong></div>
+                        <div class="col-sm-9">{{ mov.local_destino|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Motivo:</strong></div>
+                        <div class="col-sm-9">{{ mov.motivo|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Observações:</strong></div>
+                        <div class="col-sm-9">{{ mov.observacoes|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Assinatura:</strong></div>
+                        <div class="col-sm-9">{{ mov.assinatura_digital|default:"Sem Informações"}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Estado da Assinatura:</strong></div>
+                        {% if mov.verificar_autenticidade == 'Movimentação íntegra e autenticada' %}
+                        
+                            <div class="col-sm-9 badge bg-success">{{ mov.verificar_autenticidade|default:"Sem Informações"}}</div>
+                        {% else %}
+                            <div class="col-sm-9 badge bg-danger">{{ mov.verificar_autenticidade|default:"Sem Informações"}}</div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+                {% empty %}
+                    <h5>Evidência Sem Movimentação</h5>
+                {% endfor %}
+                
+                
+            </div>
+        </div>
+    </div>
+   
+</div>
+{% endblock %}
+

@@ -1,0 +1,210 @@
+{% comment %} {% extends 'principal.html' %}
+
+{% block content %} {% endcomment %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div style="display: flex; position: relative;">
+            <span class="bg-danger" style="display: flex; position: absolute; justify-content: center;
+            border-radius: 50%; padding: 4px; right: 0px; top: -14px; height: 20px; align-items: center;
+            width: 26px; color: #fff; font-size: 10pt;
+            ">
+                {% if tamanho_evidencia > 10 %}
+                    +10
+                {% else %}
+                    {{tamanho_evidencia}}
+                {% endif %}
+            </span>
+        
+            <button class="btn btn-primary" onclick="abrir_modal1()">Evidências</button>
+        </div>
+        <div  id="modalconfirmacao1" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+            <div class="card"  style="position: absolute; top: 50% ; left: 50%; transform: translate(-50%, -50%); height: 630px;
+             background: white; min-width: 70%;">
+
+                <div id="previous-evidencia">
+
+                    <li class="page-item" style="display: flex;
+                        position: absolute; left: 10px; top: 50%;" id="li1-evidencia">
+                        
+                    </li>
+                </div>
+
+
+                <div class="d-flex justify-content-between card-header bg-primary text-white"
+                style="width: 100%;">
+
+                    <h3 >Pessoas envolvidas no caso nº {{caso.numero_caso}}</h3>
+                    <button onclick="fecharmodal1()" class="btn" style=" background-color: blue; color: red;
+                     margin-right: 10px; width: 40px; height: 40px; border-radius: 50%;">
+                        X
+                    </button>
+                    
+                </div>
+                
+                    <div style="display: flex; flex-direction: column; gap: 10px;
+                    margin-left: 50px; padding-top: 10px; overflow-y: auto;"   id="evidencia">
+                        
+                    </div>
+                
+                <div id="proximo1"  data-id="{{caso.id}}">
+                        
+                    <li class="page-item"  style="display: flex; 
+                        position: absolute; right: 10px; top: 50%;" id="li-evidencia"
+                        
+                    >
+                        
+                    </li>
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+            
+            const modalconfirmacao1 = document.getElementById('modalconfirmacao1')
+
+            function abrir_modal1(){
+
+                modalconfirmacao1.style.display = 'block'
+            }
+            function fecharmodal1(){
+
+                modalconfirmacao1.style.display = 'none'
+            }
+
+            $(document).ready(function(){
+
+                function loadPaginacao(page=1){
+                    let caso_id = $('#proximo1').data('id')
+                 
+                    $.ajax(
+                        {
+                            url: `/detail_case/${caso_id}?page=${page}`,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function(res){
+                                
+                                pessaosDados(res.evidencia_obj[0], res.evidencia_obj[0].foto1)
+                                proximo(res.evidencia_obj[0].paginacao)
+                            },
+                            error: function(res){
+                                console.log(res.statusText)
+                            }
+                        }
+                    )
+                }
+    
+                function proximo(paginacao){
+                    
+                    const co1 = $('#li1-evidencia')
+                    const co = $('#li-evidencia')
+                    co.empty()
+                    co1.empty()
+                    if(paginacao.has_next){
+                        v= paginacao.page_atual + 1
+    
+                        co.append(
+                            $('<button>').text('>').addClass('btn btn-primary').click(()=>loadPaginacao(v))
+                        )
+                    }
+    
+                    if (paginacao.has_previous){
+    
+                        v= paginacao.page_atual - 1
+    
+                        co1.append(
+                            $('<button>').text('<').addClass('btn btn-primary').click(()=>loadPaginacao(v))
+                        )
+                    }
+    
+                    
+                }
+                function anterior(has_previous, previous_page_number){
+                    //$('#previous1-evidencia').hide()
+                    v= previous_page_number - 1
+                    $('#previous-evidencia').html(`
+                    ${
+                        has_previous ? ` <li class="page-item" style="display: flex;
+                                    position: absolute; left: 10px; top: 50%;">
+                                    
+                                    <button class="btn btn-primary" id="anterior" data-id="{{caso.id}}"
+                                    data-nome="?pageEv=${ v }" 
+                                    aria-label="Previous">
+                                        <span aria-hidden="true"><</span>
+                                    </button>
+                                </li>`: ''
+                    }
+                    `)
+                    
+                }
+    
+                function pessaosDados(evidencia,foto){
+                    const p = $('#evidencia')
+    
+                    p.empty()
+                    p.html(`
+                        <div style="display: flex; flex-direction: column; gap: 10px;
+                            margin-left: 50px; padding-top: 10px; overflow-y: auto;"   id="evidencia">
+                            <h4 class="text-danger">TIPO DE EVIDÊNCIA: ${evidencia.tipo.nome.toUpperCase()}</h4>
+
+                            
+                            
+
+                            <div class="d-flex" style="margin-top: 10px; margin-left: 10px; gap: 10px;">
+                                <div style=" font-size: 20pt; border: 1px solid #ddd; width: 300px; height: 200px;">
+                                   <img src='${foto}' style='height: 100%; width: 100%;'/>
+                                </div> 
+
+                                <div style="display: flex; flex-direction: column;">
+                                    <span><strong>Número de evidência :</strong> ${evidencia.numero_evidencia || 'Sem Informação'}</span>
+                                    <span><strong>Local de coleta:</strong> ${evidencia.tipo.nome || 'Sem Informação'}</span>
+                                    <span><strong>Estado da conseração: </strong>${evidencia.estado_conservacao || 'Sem Informação'}</span>
+                                    <span><strong>Data da coleta: </strong>${evidencia.data_coleta || 'Sem Informação'}</span>
+                                    <span><strong>Local de coleta:</strong> ${evidencia.local_coleta || 'Sem Informação'}</span>
+
+                                    ${evidencia.status === 'coletada'? ' <span><strong>Status: </strong>Coletada</span>' : ''}
+                                    ${evidencia.status === 'em_analise'? ' <span><strong>Status: </strong> Em Análise</span>' : ''}
+                                    ${ evidencia.status === 'analisada'? ' <span><strong>Status: </strong>Analisada</span>' : ''}
+                                    ${ evidencia.status === 'devolvida'? ' <span><strong>Status: </strong>Devolvida</span>' : ''}
+                                    ${evidencia.status === 'destruida'? ' <span><strong>Status: </strong>Destruída</span>' : ''}
+
+                                    <span><strong>Coletado por: </strong>${evidencia.coletado_por.first_name+evidencia.coletado_por.last_name}</span>
+                                     <span><strong>Local armazenado: </strong>${evidencia.local_armazenamento || 'Sem Informação'}</span>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; margin-left: 20px; gap: 10px;">
+                                <span><strong>Está lacrada?:</strong> 
+                                    {% if ev.lacrada %}
+                                        <span class="badge bg-success">Sim</span>
+                                    
+                                    {% else %}
+                                        <span class="badge bg-danger">Não</span>
+
+                                    {% endif %}
+                                </span>
+                                <span><strong>Número de lacre: </strong>${evidencia.numero_lacre || 'Sem Informação'}</span>
+                                <span><strong>Peso: </strong>${evidencia.peso || 'Sem Informação'}</span>
+                                <span><strong>Dimensões: </strong>${evidencia.dimensoes || 'Sem Informação'}</span>
+                                <span><strong>Cor: </strong>${evidencia.cor || 'Sem Informação'}</span>
+                                <span><strong>Material: </strong>${evidencia.material || 'Sem Informação'}</span>
+                                <span><strong>Valor estimado: </strong>${evidencia.valor_estimado || 'Sem Informação'}</span>
+                                <span><strong>Observações: </strong>${evidencia.observacoes || 'Sem Informação'}</span>
+                                <span><strong>Descrição: </strong>${evidencia.descricao || 'Sem Informação'}</span>
+                                <span><strong>Data da crianção: </strong>${evidencia.data_criacao || 'Sem Informação'}</span>
+                            </div>
+                        </div>
+                    `)
+                }
+                loadPaginacao(1)
+            })
+        </script>
+    </body>
+    </html>
+{% comment %} {% endblock content %} {% endcomment %}

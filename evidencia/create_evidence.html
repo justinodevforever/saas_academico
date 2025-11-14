@@ -1,0 +1,658 @@
+{% extends 'principal.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% load static %}
+        <script src="{% static 'js/jquery.inputmask.min.js' %}"></script>
+        <style>
+     
+            :root {
+                --amarelo: #ffc107;
+                --azul-escuro: #1A3A52;
+                --azul-medio: #2E5C7E;
+                --cinza-claro: #F5F7FA;
+                --branco: #FFFFFF;
+            }
+
+
+            .container-create_evidence {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background: var(--branco);
+                border-radius: 10px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                margin-bottom: 10px;
+            }
+
+            .header {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+                padding: 40px ;
+                text-align: center;
+                position: relative;
+                border-radius: 10px 10px 0px 0px;
+            }
+
+            .header h1 {
+                color: var(--branco);
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                color: var(--amarelo);
+                font-size: 0.95em;
+            }
+
+            .profile-picture-section {
+                padding: 40px;
+                text-align: center;
+                background: var(--cinza-claro);
+                border-bottom: 3px solid var(--amarelo);
+            }
+
+            .profile-picture-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+
+            .profile-picture {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                border: 5px solid var(--amarelo);
+                object-fit: cover;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .change-photo-btn {
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                background: var(--amarelo);
+                color: var(--azul-escuro);
+                border: none;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 1.2em;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+            }
+
+            .change-photo-btn:hover {
+                transform: scale(1.1);
+                background: var(--azul-medio);
+                color: var(--amarelo);
+            }
+
+            .form-section {
+                padding: 40px;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+                margin-bottom: 25px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                color: var(--azul-escuro);
+                font-weight: 600;
+                margin-bottom: 8px;
+                font-size: 0.95em;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 12px 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                font-size: 1em;
+                transition: all 0.3s ease;
+                font-family: inherit;
+            }
+
+            .form-group input:focus,
+            .form-group textarea:focus,
+            .form-group select:focus {
+                outline: none;
+                border-color: var(--amarelo);
+                box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .section-title {
+                color: var(--azul-escuro);
+                font-size: 1.3em;
+                margin: 30px 0 20px 0;
+                padding-bottom: 10px;
+                border-bottom: 2px solid var(--amarelo);
+                display: flex;
+                align-items: center;
+            }
+
+            .section-title::before {
+                content: '';
+                width: 4px;
+                height: 24px;
+                background: var(--amarelo);
+                margin-right: 12px;
+            }
+        
+            .password-toggle {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+                color: var(--azul-medio);
+                font-size: 0.9em;
+                cursor: pointer;
+            }
+
+            .password-toggle input[type="checkbox"] {
+                margin-right: 8px;
+            }
+
+            @media (max-width: 768px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 1.5em;
+                }
+
+                .form-section {
+                    padding: 30px 20px;
+                }
+
+                .button-group {
+                    flex-direction: column;
+                }
+            }
+
+            .alert {
+                padding: 15px 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .alert-info {
+                background: rgba(255, 193, 7, 0.1);
+                border-left: 4px solid var(--amarelo);
+                color: var(--azul-escuro);
+            }
+        </style>
+    </head>
+    <body >
+        <div style="width: 80%; height: 100%">
+
+            
+            <form action="{% url 'create_evidence' caso.id %}" method="post" class="container-create_evidence">
+
+                <div class="header d-flex justify-content-between ">
+                    <h3 class="text-warning">Cadastro de Evidências</h3>
+                    
+                    <a href="/list_evidence/" class="btn btn-primary" style="width: 100px;">Listar Evidência</a>
+                </div>
+
+                {% csrf_token %}
+
+                
+            
+                <div class="form-section" >
+
+                    <div class="alert alert-info">
+                        <span>ℹ️</span>
+                        <span>Preencha todos os campos obrigatórios para salvar as alterações</span>
+                    </div>
+                    
+                
+                    {% if sucesso %}
+                    
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>{{sucesso}}</strong>
+                            <button type="button" class="btn-close"
+                            data-bs-dismiss="alert" aria-label="close"
+                            ></button>
+                        </div>
+                    {% elif erro %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>{{erro}}</strong>
+                            <button type="button" class="btn-close"
+                            data-bs-dismiss="alert" aria-label="close"
+                            ></button>
+                        </div>
+                    {% endif %}
+
+                    <div class="section-title">Coleta e Custódia</div >
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="local_coleta">
+                                
+                                <span >
+                                    Local da coleta
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <input type="text" name="local_coleta" placeholder="Local da coleta"
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                            {% if form.local_coleta.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.local_coleta.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="local_armazenamento">
+
+                                <span >
+                                    Local de armazenamento: 
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <input type="text"  placeholder="Local de armazenamento"
+                            name="local_armazenamento" id="local_armazenamento">
+
+                            {% if form.local_armazenamento.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.local_armazenamento.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="data_coleta">
+
+                                <span >
+                                    Data da coleta
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <input type="datetime-local" style=" width: 100%;"
+                             name="data_coleta" autocomplete="off"
+                            aria-describedby="helpId">
+
+                            {% if form.data_coleta.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.data_coleta.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="custodia_atual">
+
+                                <span >
+                                    Custódia atual 
+                                    <span class="text-danger">*</span>
+                                </span>
+                    
+                            </label>
+                            <select name="custodia_atual"  >
+                                <option value="">Selecione </option>
+                                {% for user in users %}
+                                    <option value="{{user.id}}">{{user.get_full_name}}</option>
+                                {% endfor %}
+                            
+                            </select>
+
+                            {% if form.custodia_atual.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.custodia_atual.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="coletado_por">
+
+                                <span >
+                                    Coletado por: 
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+                            <select name="coletado_por"  >
+                                <option value="">Selecione</option>
+                                {% for user in users %}
+                                    <option value="{{user.id}}">{{user.get_full_name}}</option>
+                                {% endfor %}
+                        
+                            </select>
+
+                            {% if form.coletado_por.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.coletado_por.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                    <div class="section-title">Características física</div >
+
+                    <div class="form-grid">
+                
+
+                        <div class="form-group">
+
+                            <label for="dimensoes">
+
+                                Dimensões
+                            </label>
+
+                            <input type="text" style=" width: 100%;"
+                                name="dimensoes" 
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                            {% if form.dimensoes.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.dimensoes.errors}}
+                                </div>
+                            {% endif %}
+                        
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="material">
+
+                                Material
+                            </label>
+                            
+                            <input type="text" style=" width: 100%;"
+                                name="material" 
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                            {% if form.material.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.material.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        
+                        <div class="form-group" >
+
+                            <label for="peso">
+
+                                Peso
+                            </label>
+
+                            <input type="number" style=" width: 100%;" step="0.001" id="la"
+                                name="peso" 
+                                aria-describedby="helpId" autocomplete="off">
+                                
+                                {% if form.peso.errors %}
+                                    <div class="text-danger" style="margin-bottom: -40px; ">
+                                        {{form.peso.errors}}
+                                    </div>
+                                {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="valor_estimado">
+
+                                Valor estimado
+                            </label>
+                            <input type="text" style=" width: 100%;" step="0.01" id="valor"
+                            name="valor_estimado" autocomplete="off"
+                            aria-describedby="helpId">
+
+
+                            {% if form.valor_estimado.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.valor_estimado.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado_conservacao" >
+
+                                Estado da conservação
+                            </label>
+
+                            <input type="text"  name="estado_conservacao" 
+                            />
+
+                            {% if form.estado_conservacao.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.estado_conservacao.errors}}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="section-title">outras informações</div>
+
+                    <div class="form-grid">
+                        <div class="form-group" >
+                            
+                            <label for="tipo">
+
+                                <span >
+                                    Tipo de evidência 
+                                    <span class="text-danger">*</span>
+                                </span>
+                    
+                            </label>
+                            <select name="tipo"  >
+                                <option value="">Selecione </option>
+                                {% for tipo in tipos %}
+                                <option value="{{tipo.id}}">{{tipo.nome}}</option>
+                                {% endfor %}
+                            
+                            </select>
+
+                            {% if form.tipo.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.tipo.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="status">
+
+                                <span >
+                                    Status
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            <select name="status"  >
+                                <option value="">Selecione</option>
+                                <option value="coletada">Coletada</option>
+                                <option value="em_analise">Em análise</option>
+                                <option value="analisada">Analisada</option>
+                                <option value="devolvida">Devolvida</option>                
+                                <option value="destruida">Destruída</option>                
+                            </select>
+
+                            {% if form.status.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.status.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        
+
+                        <div class="form-group">
+
+                            <label for="descricao">
+                        
+                                <span >
+                                    Descrição
+                                <span class="text-danger">*</span>
+                                </span>
+                                
+                            </label>
+
+                            <textarea  name="descricao"  
+                            style="height: 70px; resize: none;"
+                            ></textarea>
+
+                            {% if form.descricao.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.descricao.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="observacoes">
+                        
+                                Observações
+                                
+                            </label>
+                            
+                            <textarea  name="observacoes"  
+                            style="height: 70px; resize: none;"
+                            ></textarea>
+
+                            {% if form.observacoes.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.observacoes.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        
+                        <div class="form-group">
+
+                            <label for="numero_lacre">
+
+                                Número de lacre
+                            </label>
+
+                            <input type="text" name="numero_lacre" 
+                            />
+
+                            {% if form.numero_lacre.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.evidencias_relacionadas.errors}}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="width: 80%; ">
+                        Cadastrar
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+        <script>
+            function formatCurrency(input, min, max) {
+                // Remove tudo que não for número ou vírgula/ponto
+                let value = input.value.replace(/[^\d.,]/g, '').replace(',', '.');
+                console.log(value)
+
+                // Se não for número válido
+                if (isNaN(value) || value === "") {
+                    input.value = "";
+                    return;
+                }
+
+                let num = parseFloat(value);
+
+                // Verifica limites
+                if (num < min || num > max) {
+                    alert(`Valor fora do intervalo permitido (${min} - ${max})`);
+                    input.value = "";
+                    return;
+                }
+
+
+
+                // Formata como moeda (pt-BR usa vírgula como decimal)
+                input.value = num.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 3
+                });
+
+
+            }
+
+            function formatDecimalPeso(input, min, max) {
+              let value = input.value.replace(',', '.');
+              if (isNaN(value)) {
+                input.value = "";
+                return;
+              }
+              let num = parseFloat(value).toFixed(3); 
+
+              if (num < min || num > max) {
+                alert("Valor fora do intervalo permitido");
+                input.value = "";
+              } else {
+                input.value = num;
+              }
+            }
+            
+            document.getElementById("la").addEventListener("blur", function(){
+                formatDecimalPeso(this, 1, 9999999);
+            });
+            
+            document.getElementById("valor").addEventListener("blur", function(){
+              formatCurrency(this, 0, 9999999999999999);
+            });
+            </script>
+            
+    </body>
+    </html>
+{% endblock content %}
