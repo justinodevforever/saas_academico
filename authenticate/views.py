@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
 from django.contrib import messages
-from administrador.models import Usuario
+from .models import Utilizador
 
 
 def auth_user(request):
@@ -14,12 +14,12 @@ def auth_user(request):
         remember = request.POST.get('remember')
 
         try: 
-            user_obj = Usuario.objects.get(
+            user_obj = Utilizador.objects.get(
                 Q(username=username) |
                 Q(password=password)
             )
 
-        except Usuario.DoesNotExist:
+        except Utilizador.DoesNotExist:
             messages.error(request,  "Credenciais inválidas!")
             return render(request, 'login.html', {
                 'next': request.POST.get('next')

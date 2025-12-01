@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'director',
     'secretario',
     'relatorio',
+    'academico',
     'authenticate'
 ]
 
@@ -65,19 +66,31 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'db_sgs',
+#         'USER': 'root',
+#         'PASSWORD': 'chitombi',
+#         'HOST': 'localhost',
+#         'PORT': '3306', 
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_sgs',
-        'USER': 'root',
-        'PASSWORD': 'chitombi',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db-saas',
+        'USER': 'postgres',
+        'PASSWORD': '123',
         'HOST': 'localhost',
-        'PORT': '3306', 
+        'PORT': '5432',
     }
 }
 
 
-AUTH_USER_MODEL = 'administrador.Usuario'
+
+AUTH_USER_MODEL = 'authenticate.Utilizador'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/index/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
