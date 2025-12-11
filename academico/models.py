@@ -53,6 +53,9 @@ class TenantEscola(models.Model):
         verbose_name = 'Escola'
         verbose_name_plural = 'Escolas'
 
+    def __str__(self):
+        return self.nome
+
 class AnoLectivo(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -68,6 +71,9 @@ class AnoLectivo(models.Model):
         verbose_name = 'Ano Lectivo'
         verbose_name_plural = 'Anos Lectivos'
         unique_together = ['escola', 'designacao']
+
+    def __str__(self):
+        return self.designacao
 
 
 class PeriodoAvaliativo(models.Model):
@@ -85,6 +91,9 @@ class PeriodoAvaliativo(models.Model):
         verbose_name = 'Período Avaliativo'
         verbose_name_plural = 'Períodos Avaliativos'
         unique_together = ['ano_lectivo', 'numero_periodo']
+
+    def __str__(self):
+        return self.designacao
 
 class TenantConfiguracao(models.Model):
 
@@ -112,7 +121,7 @@ class TenantConfiguracao(models.Model):
         db_table = 'tenant_configuracao'
         verbose_name = 'Configuração da Escola'
 
-
+    
 class Diretor(models.Model):
     GENERO = [('M', 'Masculino'), ('F', 'Feminino')]
     NIVEL_ACADEMICO = [
@@ -151,7 +160,9 @@ class Diretor(models.Model):
         verbose_name = 'Director'
         verbose_name_plural = 'Directores'
 
-
+    def __str__(self):
+        return self.nome_completo
+    
 class Curso(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -169,10 +180,13 @@ class Curso(models.Model):
         verbose_name_plural = 'Cursos'
         unique_together = ['escola', 'codigo']
 
-
+    def __str__(self):
+        return self.nome
+    
 class Classe(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='classes')
     numero = models.IntegerField(validators=[MinValueValidator(10), MaxValueValidator(12)])
     designacao = models.CharField(max_length=50)
     ciclo = models.CharField(max_length=20, default='II Ciclo')
@@ -184,6 +198,8 @@ class Classe(models.Model):
         verbose_name_plural = 'Classes'
         ordering = ['ordem']
 
+    def __str__(self):
+        return self.designacao
 
 class Disciplina(models.Model):
 
@@ -201,6 +217,9 @@ class Disciplina(models.Model):
         verbose_name = 'Disciplina'
         verbose_name_plural = 'Disciplinas'
         unique_together = ['escola', 'codigo']
+
+    def __str__(self):
+        return self.nome
 
 
 class CursoClasseDisciplina(models.Model):
@@ -222,6 +241,7 @@ class CursoClasseDisciplina(models.Model):
 class Categoria(models.Model):
 
     categoria = models.CharField(max_length=100)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='categoria')
 
     def __str__(self):
         return self.categoria
@@ -249,51 +269,36 @@ class Professor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     escola = models.ForeignKey(TenantEscola, on_delete=models.CASCADE)
     utilizador = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    numero_agente = models.CharField(max_length=50, unique=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, blank=True, null=True)
+    numero_agente = models.CharField(max_length=50, unique=True, blank=True, null=True)
     nome_completo = models.CharField(max_length=200)
     bi = models.CharField(max_length=20)
-    data_nascimento = models.DateField()
-    genero = models.CharField(max_length=1, choices=GENERO)
-    nacionalidade = models.CharField(max_length=50, default='Angolana')
-    especialidade = models.CharField(max_length=100)
+    data_nascimento = models.DateField(blank=True, null=True)
+    genero = models.CharField(max_length=1, choices=GENERO, blank=True, null=True)
+    especialidade = models.CharField(max_length=100, blank=True, null=True)
     nivel_academico = models.CharField(max_length=20, choices=NIVEL_ACADEMICO)
     instituicao_formacao = models.CharField(max_length=200, blank=True, null=True)
     anos_experiencia = models.IntegerField(default=0, blank=True, null=True)
-    telefone = models.CharField(max_length=20)
-    email = models.EmailField(max_length=100)
-    endereco = models.TextField()
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=True, null=True)
+    endereco = models.TextField(blank=True, null=True)
     tipo_contrato = models.CharField(max_length=20, choices=TIPO_CONTRATO, blank=True, null=True)
-    data_admissao = models.DateField()
-    data_saida = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS, default='Activo')
-    carga_horaria_semanal = models.IntegerField(default=0)
-    salario_base = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    foto = models.ImageField(upload_to='professores/fotos/', blank=True, null=True)
-    cv = models.FileField(upload_to='professores/cvs/', blank=True, null=True)
+    carga_horaria_semanal = models.IntegerField(default=0, blank=True, null=True)
+    
+    @property
+    def idade(self):
+        from datetime import date
+        today = date.today()
+        return today.year - self.data_nascimento.year - ((today.month, today.day) < (self.data_nascimento.month, self.data_nascimento.day))
     
     class Meta:
         db_table = 'professor'
         verbose_name = 'Professor'
         verbose_name_plural = 'Professores'
 
-
-class FormacaoProfessor(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='formacoes')
-    titulo = models.CharField(max_length=200)
-    instituicao = models.CharField(max_length=200)
-    area = models.CharField(max_length=100)
-    nivel = models.CharField(max_length=50)
-    ano_conclusao = models.IntegerField()
-    certificado = models.FileField(upload_to='professores/certificados/', blank=True, null=True)
-    
-    class Meta:
-        db_table = 'formacao_professor'
-        verbose_name = 'Formação do Professor'
-        verbose_name_plural = 'Formações dos Professores'
-
+    def __str__(self):
+        return self.nome_completo
 
 class DisciplinaProfessor(models.Model):
 
@@ -308,7 +313,9 @@ class DisciplinaProfessor(models.Model):
         verbose_name_plural = 'Disciplinas dos Professores'
         unique_together = ['professor', 'disciplina']
 
-
+    def __str__(self):
+        return f'{self.disciplina.nome} - {self.professor}'
+    
 class Turma(models.Model):
     TURNO = [('Manhã', 'Manhã'), ('Tarde', 'Tarde'), ('Noite', 'Noite')]
     
@@ -318,10 +325,10 @@ class Turma(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     classe = models.ForeignKey(Classe, on_delete=models.CASCADE)
     designacao = models.CharField(max_length=10)
-    sala = models.CharField(max_length=50, blank=True)
+    sala = models.CharField(max_length=50, blank=True, null=True)
     turno = models.CharField(max_length=10, choices=TURNO)
-    capacidade_maxima = models.IntegerField(default=40)
-    vagas_disponiveis = models.IntegerField(default=40)
+    capacidade_maxima = models.IntegerField(default=40, blank=True, null=True)
+    vagas_disponiveis = models.IntegerField(default=40, blank=True, null=True)
     director_turma = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, blank=True, related_name='turmas_dirigidas')
     activo = models.BooleanField(default=True)
     
@@ -331,6 +338,8 @@ class Turma(models.Model):
         verbose_name_plural = 'Turmas'
         unique_together = ['escola', 'ano_lectivo', 'classe', 'designacao']
 
+    def __str__(self):
+            return f'{self.curso.nome_abreviado} - {self.classe.designacao} - {self.designacao}-{self.turno}'
 
 class TurmaDisciplinaProfessor(models.Model):
 
@@ -346,7 +355,9 @@ class TurmaDisciplinaProfessor(models.Model):
         verbose_name_plural = 'Atribuições de Professores'
         unique_together = ['turma', 'disciplina', 'ano_lectivo']
 
-
+    def __str__(self):
+        return f'{self.turma} {self.professor}'
+    
 class HorarioAula(models.Model):
     DIA_SEMANA = [
         ('Segunda', 'Segunda-feira'),
@@ -358,6 +369,7 @@ class HorarioAula(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='horarios')
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='horarios')
     disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
@@ -370,6 +382,9 @@ class HorarioAula(models.Model):
         db_table = 'horario_aula'
         verbose_name = 'Horário de Aula'
         verbose_name_plural = 'Horários de Aulas'
+
+    def __str__(self):
+        return f'{self.dia_semana}/{self.hora_inicio}'
 
 
 class Aluno(models.Model):
@@ -418,6 +433,9 @@ class Aluno(models.Model):
         db_table = 'aluno'
         verbose_name = 'Aluno'
         verbose_name_plural = 'Alunos'
+
+    def __str__(self):
+        return self.nome_completo
 
 
 class EncarregadoEducacao(models.Model):
@@ -485,14 +503,16 @@ class Matricula(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='matriculas')
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='matriculas')
     ano_lectivo = models.ForeignKey(AnoLectivo, on_delete=models.CASCADE)
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    data_matricula = models.DateField()
+    data_matricula = models.DateField(auto_now_add=True)
     numero_matricula = models.CharField(max_length=50, unique=True)
     tipo_matricula = models.CharField(max_length=20, choices=TIPO_MATRICULA)
     escola_origem = models.CharField(max_length=200, blank=True)
     status = models.CharField(max_length=20, choices=STATUS, default='Activa')
+    motivo_cancelamento = models.TextField(blank=True, null=True)
     observacoes = models.TextField(blank=True)
     documentos_entregues = models.JSONField(default=dict)
     matriculado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
@@ -502,6 +522,9 @@ class Matricula(models.Model):
         verbose_name = 'Matrícula'
         verbose_name_plural = 'Matrículas'
         unique_together = ['aluno', 'ano_lectivo']
+
+    def __str__(self):
+        return f'{self.aluno.nome_completo} - {self.numero_matricula} - {self.turma.classe}'
 
 
 class DocumentoAluno(models.Model):
@@ -515,6 +538,7 @@ class DocumentoAluno(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='documentos')
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='documentos')
     tipo_documento = models.CharField(max_length=20, choices=TIPO_DOCUMENTO)
     titulo = models.CharField(max_length=200)
@@ -530,6 +554,7 @@ class DocumentoAluno(models.Model):
 class ContaAluno(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='contas')
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
     ano_lectivo = models.ForeignKey(AnoLectivo, on_delete=models.CASCADE)
     saldo_devedor = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -571,6 +596,7 @@ class TipoAvaliacao(models.Model):
 class Avaliacao(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='avaliacoes')
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
     disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
     professor = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, blank=True)
@@ -587,6 +613,7 @@ class Avaliacao(models.Model):
 class Nota(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    escola = models.ForeignKey(TenantEscola, on_delete=models.SET_NULL, null=True, related_name='notas')
     avaliacao = models.ForeignKey(Avaliacao, on_delete=models.CASCADE)
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
     nota = models.DecimalField(max_digits=6, decimal_places=2)

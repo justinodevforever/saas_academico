@@ -226,7 +226,7 @@
                 <div class="header d-flex justify-content-between ">
                     <h3 class="text-warning">Cadastro de Estudante</h3>
                     
-                    <a href="/lista_estudante/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/alunos/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -404,9 +404,7 @@
                                  
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Telefone"
-                             name="telefone" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.telefone}}
 
                             {% if form.telefone.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -421,16 +419,32 @@
                             <label for="bi">
 
                                 B.I
-                                    
+                                <span class="text-danger">*</span>  
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Número de B.I"
-                             name="bi" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.bi}}
 
                             {% if form.bi.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
                                     {{form.bi.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="data_emissao_bi">
+
+                                Data da emissão
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{form.data_emissao_bi}}
+
+                            {% if form.data_emissao_bi.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.data_emissao_bi.errors}}
                                 </div>
                             {% endif %}
 
@@ -456,6 +470,44 @@
                             
                         </div>
 
+                        <div class="form-group">
+                            
+                            <label for="endereco_completo">
+
+                                <span >
+                                    Endereço completo 
+                                </span>
+                    
+                            </label>
+                            {{form.endereco_completo}}
+
+                            {% if form.endereco_completo.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.endereco_completo.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="bairro">
+
+                                <span >
+                                    Bairro 
+                                </span>
+                    
+                            </label>
+                            {{form.bairro}}
+
+                            {% if form.bairro.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.bairro.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
                         
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -471,61 +523,25 @@
             </form>
         </div>
         <script>
-            function formatCurrency(input, min, max) {
-                // Remove tudo que não for número ou vírgula/ponto
-                let value = input.value.replace(/[^\d.,]/g, '').replace(',', '.');
-                console.log(value)
+            function formatCurrency(input) {
 
-                // Se não for número válido
+                let value = input.value.replace(/[^\d.]/g, '');
+
                 if (isNaN(value) || value === "") {
                     input.value = "";
                     return;
                 }
 
-                let num = parseFloat(value);
-
-                // Verifica limites
-                if (num < min || num > max) {
-                    alert(`Valor fora do intervalo permitido (${min} - ${max})`);
-                    input.value = "";
-                    return;
-                }
-
-
-
-                // Formata como moeda (pt-BR usa vírgula como decimal)
-                input.value = num.toLocaleString('pt-BR', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 3
-                });
-
+                input.value =value
 
             }
 
-            function formatDecimalPeso(input, min, max) {
-              let value = input.value.replace(',', '.');
-              if (isNaN(value)) {
-                input.value = "";
-                return;
-              }
-              let num = parseFloat(value).toFixed(3); 
-
-              if (num < min || num > max) {
-                alert("Valor fora do intervalo permitido");
-                input.value = "";
-              } else {
-                input.value = num;
-              }
-            }
             
-            document.getElementById("la").addEventListener("blur", function(){
-                formatDecimalPeso(this, 1, 9999999);
-            });
             
-            document.getElementById("valor").addEventListener("blur", function(){
-              formatCurrency(this, 0, 9999999999999999);
+            document.getElementById("telefone").addEventListener("input", function(){
+              formatCurrency(this);
             });
-            </script>
+        </script>
             
     </body>
     </html>

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+<style>
+    table{
+        width: 99%;
+    }
+    th{
+        padding: 4px;
+    }
+    td{
+        padding: 4px;
+    }
+</style>
+<div class="column" style="display: flex; gap: 10px; padding: 20px; width: 100%; height: 100%;
+     justify-content: center;">
+    <div class="col-md-8" style="width: 100%;">
+        
+        <div class="card" style="width: 97%;">
+            <div class="d-flex justify-content-between card-header text-white" style="background-color: #1E3A8A;" >
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Informações do Professor {{professor.nome_completo}}
+                </h5>
+                <a href="/professores/" class="btn" 
+                style="background: #3B82F6; color: #fff;">
+                    lista
+                </a>
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nome Completo:</strong></div>
+                    <div class="col-sm-9">{{ professor.nome_completo }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Número de B.I:</strong></div>
+                    <div class="col-sm-9">{{ professor.bi }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Especialidade:</strong></div>
+                    <div class="col-sm-9">{{ professor.especialidade }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Categoria:</strong></div>
+                    <div class="col-sm-9">{{ professor.categoria }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Número de agente:</strong></div>
+                    <div class="col-sm-9">{{ professor.numero_agente }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nível acadêmico:</strong></div>
+                    <div class="col-sm-9">{{ professor.get_nivel_academico_display }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Instituição de formação:</strong></div>
+                    <div class="col-sm-9">{{ professor.instituicao_formacao|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Anos de experiências:</strong></div>
+                    <div class="col-sm-9">{{ professor.anos_experiencia|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nível acadêmico:</strong></div>
+                    <div class="col-sm-9">{{ professor.get_nivel_academico_display|default:"Sem informaçóes"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Tipo de contrato:</strong></div>
+                    <div class="col-sm-9">{{ professor.get_tipo_contrato_display|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Carga horária semanal:</strong></div>
+                    <div class="col-sm-9">{{ professor.carga_horaria_semanal|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Salário Base:</strong></div>
+                    <div class="col-sm-9">{{ professor.salario_base|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Status:</strong></div>
+                    <div class="col-sm-9">{{ professor.get_status_display|default:"Sem informaçóes" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Data de nascimento:</strong></div>
+                    <div class="col-sm-9">{{ professor.data_nascimento }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Idade:</strong></div>
+                    <div class="col-sm-9">{{ professor.idade }} Anos</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Género:</strong></div>
+                    <div class="col-sm-9">{{ professor.get_genero_display}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Telefone:</strong></div>
+                    <div class="col-sm-9">{{ professor.telefone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Email:</strong></div>
+                    <div class="col-sm-9">{{ professor.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Endereço:</strong></div>
+                    <div class="col-sm-9">{{ professor.endereco }}</div>
+                </div>
+
+                <hr>
+                <h4>Turmas</h4>
+                {% for turma in turmas %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>turma:</strong></div>
+                        <div class="col-sm-9">{{ turma.turma}}</div>
+                    </div>
+                    
+                {%empty%}
+                    <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhuma turma vinculada a este professor.
+                    </div>
+                {% endfor %}
+
+                <hr>
+                <h4>disciplina do Professores</h4>
+                {% for disc in disciplinas %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Nome:</strong></div>
+                        <div class="col-sm-9">{{ disc.disciplina.nome}}</div>
+                    </div>
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhuma disciplina vinculada a este professor.
+                    </div>
+                {% endfor %}
+
+                <hr>
+                <h4>Horário do professores</h4>
+                {% for h in horario %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Turma:</strong></div>
+                        <div class="col-sm-9">{{ h.turma}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Disciplina:</strong></div>
+                        <div class="col-sm-9">{{ h.disciplina}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Dia da semana:</strong></div>
+                        <div class="col-sm-9">{{ h.get_dia_semana_display}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Hora início/ Hora Fim:</strong></div>
+                        <div class="col-sm-9">{{ h.hora_inicio}} / {{h.hora_fim}}</div> 
+                    </div>
+                   <hr>
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhum horário vinculado a este professor.
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+   
+</div>
+{% endblock %}
+

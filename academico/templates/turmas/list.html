@@ -18,18 +18,38 @@
     <div style="display: flex; width: 100%; align-items: center; justify-content: center; flex-direction: column;">
 
         <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
-            <h1 style="margin-left: 20px;" >Lista das turmas do ano lectivo {{ano_letivo.ano}} </h1>
+            <h1 style="margin-left: 20px;" >Lista das turmas do ano lectivo {{ano_letivo}} </h1>
 
-            <form action="/listar_turma" method="get" 
-                class="btn-group btn-group-sm">
+            
+        </div>
 
-                <select name="nome_filter" id="nome_filter" class="form-control" style="border-radius: 4px 0px 0px 4px; width: 200px;">
-                    {% for ano_letivo in ano_letivos %}
-                        <option value="{{ano_letivo.id}}">{{ano_letivo.ano}}</option>
+        <div style="display: flex; width: 97%; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+
+            <form action="/turmas" method="get"  style="display: flex; gap: 20px;">
+
+                <select name="ano_lectivo" id="ano_lectivo" class="form-control" style="width: 300px;">
+                    <option value="">Ano lectivo</option>
+                    {% for ano_letivo in anos_lectivos %}
+                        <option value="{{ano_letivo.id}}">{{ano_letivo}}</option>
                     {% endfor %}
                 </select>
 
-                <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+                <select name="classe" id="classe" class="form-control" style="width: 300px;">
+                    <option value="">Classe</option>
+                    {% for classe in classes %}
+                        <option value="{{classe.id}}">{{classe}}</option>
+                    {% endfor %}
+                </select>
+
+
+                <select name="curso" id="curso" class="form-control" style="width: 300px;">
+                    <option value="">Curso</option>
+                    {% for curso in cursos %}
+                        <option value="{{curso.id}}">{{curso}}</option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary"><i class="bi bi-search"> Buscar</i></button>
 
             </form>
         </div>
@@ -39,11 +59,9 @@
             <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
                 <h1 style="margin-left: 20px;" class="text-warning"></h1>
 
-                {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                <a href="/criar_turma/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
+                <a href="/turmas/criar/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
                     <i class="bi bi-plus-circle" aria-hidden="true"></i></i>Novo
                 </a>
-                {%endif%}
             
             </div>
 
@@ -68,11 +86,11 @@
                             <tr>
                                 <th>
                                     Nome da turma
-                                    <a href="?order_by=turma{% if nome_filter %}&nome_filter={{ nome_filter|urlencode  }}{% endif %}"
+                                    <a href="?order_by=designacao{% if ano_lectivo %}&ano_lectivo={{ ano_lectivo|urlencode  }}{% endif %}{% if classe %}&classe={{ classe|urlencode  }}{% endif %}{% if curso %}&curso={{ curso|urlencode  }}{% endif %}"
                                     >
                                         <i class="bi bi-arrow-down-up"></i>
                                     </a>
-                                    <a href="/listar_turma/?{% if nome_filter %}nome_filter={{ nome_filter|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
+                                    <a href="/turmas/?{% if ano_lectivo %}ano_lectivo={{ ano_lectivo|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
                                 </th>
                                 
                                 <th>Classe</th>
@@ -84,23 +102,21 @@
                         <tbody>
                             {% for turma in turmas %}
                             <tr>
-                                <td><a href="{% url "listar_turma_estudantes" turma.id%}">{{ turma.turma }}</a></td>
-                                <td>{{ turma.classe.denominacao }}</td>
-                                <td>{{ turma.periodo.periodo }}</td>
+                                <td><a href="{% url "turma_estudante_list" turma.id%}">{{ turma }}</a></td>
+                                <td>{{ turma.classe }}</td>
+                                <td>{{ turma.turno }}</td>
                                 
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{% url "visualizar_turma" turma.id %}" 
+                                        <a href="{% url "turma_detail" turma.id %}" 
                                             class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         
-                                        {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                                        <a href="{% url "editar_turma" turma.id %}" 
+                                        <a href="{% url "turma_update" turma.id %}" 
                                             class="btn btn-outline-warning" title="Editar">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                         </a>
-                                        {%endif%}
 
                                     </div>
                                 </td>

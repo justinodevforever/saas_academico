@@ -215,17 +215,20 @@
                 border-left: 4px solid var(--primary-blue);
                 color: var(--medium-blue);
             }
+            #cancelamento, #cancelamento1{
+                display: none;
+            }
         </style>
     </head>
     <body >
         <div style="display: flex; justify-content: center; width: 100%; height: 100%">
             
-            <form action="/criar_matricula/" method="post" class="container-criar_professor">
+            <form action="{% url "matricula_update" matricula.id %}" method="post" class="container-criar_professor">
 
                 <div class="header d-flex justify-content-between ">
-                    <h3 class="text-warning">Matrícula do estudante</h3>
+                    <h3 class="text-warning">Atualização de matrícula</h3>
                     
-                    <a href="/lista_matricula/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/matriculas/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -271,8 +274,7 @@
                                 </span>
                             </label>
 
-                            <input type="text" name="nome_completo" placeholder="Nome completo" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.nome_completo}}
                                 
                             {% if form.nome_completo.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -281,19 +283,17 @@
                             {% endif %}
                             
                         </div>
-
                         <div class="form-group">
 
                             <label for="nome_pai">
                                 
                                 <span >
-                                    Filho (a) de:
+                                    Filho de:
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            <input type="text" name="nome_pai" placeholder="Filho (a) de:" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.nome_pai}}
                                 
                             {% if form.nome_pai.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -302,7 +302,6 @@
                             {% endif %}
                             
                         </div>
-
                         <div class="form-group">
 
                             <label for="nome_mae">
@@ -313,8 +312,7 @@
                                 </span>
                             </label>
 
-                            <input type="text" name="nome_mae" placeholder="Nome completo" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.nome_mae}}
                                 
                             {% if form.nome_mae.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -323,28 +321,44 @@
                             {% endif %}
                             
                         </div>
-
                         <div class="form-group">
 
-                            <label for="natural">
+                            <label for="naturalidade">
                                 
                                 <span >
-                                    Natural de:
+                                    Naturalidade:
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            <input type="text" name="natural" placeholder="Natural de" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.naturalidade}}
                                 
-                            {% if form.natural.errors %}
+                            {% if form.naturalidade.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.natural.errors}}
+                                    {{form.naturalidade.errors}}
                                 </div>
                             {% endif %}
                             
                         </div>
+                        <div class="form-group">
 
+                            <label for="provincia">
+                                
+                                <span >
+                                    Província:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.provincia}}
+                                
+                            {% if form.provincia.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.provincia.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
                         <div class="form-group">
 
                             <label for="municipio">
@@ -355,8 +369,7 @@
                                 </span>
                             </label>
 
-                            <input type="text" name="municipio" placeholder="Município" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.municipio}}
                                 
                             {% if form.municipio.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -368,20 +381,19 @@
 
                         <div class="form-group">
 
-                            <label for="provincia">
+                            <label for="bairro">
                                 
                                 <span >
-                                    Província:
+                                    Bairro:
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            <input type="text" name="provincia" placeholder="Província" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.bairro}}
                                 
-                            {% if form.provincia.errors %}
+                            {% if form.bairro.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.provincia.errors}}
+                                    {{form.bairro.errors}}
                                 </div>
                             {% endif %}
                             
@@ -397,8 +409,7 @@
                                 </span>
                             </label>
 
-                            <input type="date"  placeholder="Data de nascimento"
-                                name="data_nascimento" id="data_nascimento">
+                            {{form.data_nascimento}}
 
                             {% if form.data_nascimento.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -416,9 +427,7 @@
                                  
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Telefone"
-                             name="telefone" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.telefone}}
 
                             {% if form.telefone.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -433,12 +442,10 @@
                             <label for="bi">
 
                                 B.I
-                                    
+                                    <span class="text-danger">*</span>
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Número de B.I"
-                             name="bi" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.bi}}
 
                             {% if form.bi.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -450,39 +457,17 @@
 
                         <div class="form-group">
 
-                            <label for="emitido_em">
+                            <label for="data_emissao_bi">
 
-                                Emitido em:
-                                    
+                                Data de emissão
+                                    <span class="text-danger">*</span>
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Emitido em" oninput="this.value=this.value.toUpperCase()"
-                             name="emitido_em" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.data_emissao_bi}}
 
-                            {% if form.emitido_em.errors %}
+                            {% if form.data_emissao_bi.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.emitido_em.errors}}
-                                </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="data_emissao">
-
-                                Data da emissão:
-                                    
-                            </label>
-
-                            <input type="date" style=" width: 100%;"
-                             name="data_emissao" autocomplete="off"
-                            aria-describedby="helpId">
-
-                            {% if form.data_emissao.errors %}
-                                <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.data_emissao.errors}}
+                                    {{form.data_emissao_bi.errors}}
                                 </div>
                             {% endif %}
 
@@ -498,12 +483,7 @@
                                 </span>
                     
                             </label>
-                            <select name="genero"  >
-                                <option value="">Selecione </option>
-                                <option value="M">Masculino </option>
-                                <option value="F">Feminino </option>
-                                <option value="outro">Outro </option>
-                            </select>
+                            {{form.genero}}
 
                             {% if form.genero.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -513,28 +493,7 @@
                             
                         </div>
 
-                        <div class="form-group">
-
-                            <label for="endereco">
-
-                                Endereço completo
-                                    
-                            </label>
-
-                            <input type="text" style=" width: 100%;" placeholder="Moxico-Luena, Sinai novo."
-                             name="endereco" autocomplete="off"
-                            aria-describedby="helpId">
-
-                            {% if form.endereco.errors %}
-                                <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.endereco.errors}}
-                                </div>
-                            {% endif %}
-
-                        </div>
-
                     </div>
-
                     <div class="section-title">Infomações da Mátricula</div>
 
                     <div class="form-grid">
@@ -558,42 +517,67 @@
                             {% endif %}
                             
                         </div>
-                
+
                         <div class="form-group">
 
-                            <label for="ano_letivo">
+                            <label for="tipo_matricula">
                                 <span>
-                                    Ano Lectivo
+                                    Tipo da matrícula
                                     <span class="text-danger">*</span>
                                 </span>
                                  
                             </label>
 
-                            {{form.ano_letivo}}
+                            {{form.tipo_matricula}}
 
-                            {% if form.ano_letivo.errors %}
+                            {% if form.tipo_matricula.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.ano_letivo.errors}}
+                                    {{form.tipo_matricula.errors}}
                                 </div>
                             {% endif %}
 
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="escola_origem">
 
-                            <label for="status_matricula">
+                            <label for="escola_origem">
                                 <span>
-                                    Status da matrícula
+                                    Escola de Origem
                                     <span class="text-danger">*</span>
                                 </span>
                                  
                             </label>
 
-                            {{form.status_matricula}}
+                            {{form.escola_origem}}
 
-                            {% if form.status_matricula.errors %}
+                            {% if form.escola_origem.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.status_matricula.errors}}
+                                    {{form.escola_origem.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="form-group">
+
+                            <label for="documentos_entregues">
+                                <span>
+                                    Tipo de documento
+                                </span>
+                                 
+                            </label>
+
+                            <div class="form-group">
+                                {% for checkbox in form.documentos_entregues %}
+                                    <label style="display:flex; align-items:center;">
+                                        {{ checkbox.tag }} {{ checkbox.choice_label }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+
+
+                            {% if form.documentos_entregues.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.documentos_entregues.errors}}
                                 </div>
                             {% endif %}
 
@@ -614,62 +598,30 @@
             </form>
         </div>
         <script>
-            function formatCurrency(input, min, max) {
-                // Remove tudo que não for número ou vírgula/ponto
-                let value = input.value.replace(/[^\d.,]/g, '').replace(',', '.');
-                console.log(value)
+            const tipo_matricula = document.getElementById('tipo_matricula')
+            const escola_origem = document.getElementById('escola_origem')
 
-                // Se não for número válido
-                if (isNaN(value) || value === "") {
-                    input.value = "";
-                    return;
-                }
-
-                let num = parseFloat(value);
-
-                // Verifica limites
-                if (num < min || num > max) {
-                    alert(`Valor fora do intervalo permitido (${min} - ${max})`);
-                    input.value = "";
-                    return;
-                }
-
-
-
-                // Formata como moeda (pt-BR usa vírgula como decimal)
-                input.value = num.toLocaleString('pt-BR', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 3
-                });
-
+            if(tipo_matricula.value === 'Transferência'){
+                escola_origem.style.display = 'flex'
+                escola_origem.style.flexDirection = 'column'
+                escola_origem.style.width = '100%'
+            }else{
+                escola_origem.style.display = 'none'
 
             }
+    
+            tipo_matricula.addEventListener('change', ()=>{
+                let v = tipo_matricula.value
+                if(v === 'Transferência'){
+                    escola_origem.style.display = 'flex'
+                    escola_origem.style.flexDirection = 'column'
+                    escola_origem.style.width = '100%'
+                }else{
+                    escola_origem.style.display = 'none'
 
-            function formatDecimalPeso(input, min, max) {
-              let value = input.value.replace(',', '.');
-              if (isNaN(value)) {
-                input.value = "";
-                return;
-              }
-              let num = parseFloat(value).toFixed(3); 
-
-              if (num < min || num > max) {
-                alert("Valor fora do intervalo permitido");
-                input.value = "";
-              } else {
-                input.value = num;
-              }
-            }
-            
-            document.getElementById("la").addEventListener("blur", function(){
-                formatDecimalPeso(this, 1, 9999999);
-            });
-            
-            document.getElementById("valor").addEventListener("blur", function(){
-              formatCurrency(this, 0, 9999999999999999);
-            });
-            </script>
-            
+                }
+            })
+        </script>
     </body>
     </html>
 {% endblock content %}

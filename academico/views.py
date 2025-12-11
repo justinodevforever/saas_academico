@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.db.models import Q, Count, Sum, Avg
 from django.http import JsonResponse, HttpResponse
@@ -10,7 +11,9 @@ from decimal import Decimal
 import json
 from .models import *
 from .forms import *
+from authenticate.models import *
 from .decorator import *
+
 
 
 def index(request):
@@ -236,6 +239,8 @@ def aluno_list(request):
 @login_required
 def aluno_create(request):
 
+    escola = request.user.escola
+
     form = AlunoForm()
 
     if request.method == 'POST':
@@ -245,6 +250,10 @@ def aluno_create(request):
         if form.is_valid():
 
             aluno = form.save()
+
+            aluno.escola = escola
+
+            aluno.save()
        
             context = {
                 'sucesso': 'Aluno criado com sucesso!',
@@ -296,21 +305,44 @@ def aluno_detail(request, aluno_id):
 
 @login_required
 def aluno_update(request, aluno_id):
-    """Atualizar dados do aluno"""
+
     aluno = get_object_or_404(Aluno, id=aluno_id, escola=request.user.escola)
+
+    form = AlunoEditForm(aluno=aluno)
     
     if request.method == 'POST':
-        # Processar atualização
-        messages.success(request, 'Dados do aluno atualizados com sucesso!')
-        return redirect('aluno_detail', aluno_id=aluno.id)
-    
-    context = {'aluno': aluno}
+
+        form = AlunoEditForm(request.POST, aluno=aluno)
+
+        if form.is_valid():
+
+            aluno = form.save()
+            aluno.save()
+
+            
+            return redirect('aluno_detail', aluno_id=aluno.id)
+        
+        else:
+
+            context = {
+                'aluno': aluno,
+                'form': form,
+                'erro': 'Erro ao atualizar dados do aluno!'
+                }
+            
+            return render(request, 'alunos/update.html', context)
+        
+    context = {
+        'aluno': aluno,
+        'form': form,
+        }
     return render(request, 'alunos/update.html', context)
 
 
 @login_required
+@require_http_methods('POST')
 def aluno_delete(request, aluno_id):
-    """Desativar aluno"""
+
     aluno = get_object_or_404(Aluno, id=aluno_id, escola=request.user.escola)
     
     if request.method == 'POST':
@@ -323,27 +355,16 @@ def aluno_delete(request, aluno_id):
     return render(request, 'alunos/delete.html', context)
 
 
-# ==================== PROFESSORES VIEWS ====================
-
 @login_required
 def professor_list(request):
-    """Lista todos os professores"""
+   
     escola = request.user.escola
     
     professores = Professor.objects.filter(escola=escola).select_related(
         'utilizador', 'categoria'
     )
     
-    # Filtros
-    status = request.GET.get('status')
-    if status:
-        professores = professores.filter(status=status)
-    
-    especialidade = request.GET.get('especialidade')
-    if especialidade:
-        professores = professores.filter(especialidade__icontains=especialidade)
-    
-    # Busca
+   
     search = request.GET.get('search')
     if search:
         professores = professores.filter(
@@ -352,44 +373,122 @@ def professor_list(request):
             Q(especialidade__icontains=search)
         )
     
-    paginator = Paginator(professores, 20)
-    page = request.GET.get('page')
+    per_page = request.GET.get('per_page', 20)
+    paginator = Paginator(professores, per_page)
+    page = request.GET.get('page', 1)
     professores_page = paginator.get_page(page)
     
     context = {
         'professores': professores_page,
         'total_professores': professores.count(),
+        'per_page': per_page,
+        'search': search
     }
     
     return render(request, 'professores/list.html', context)
 
+@login_required
+def professor_create(request):
+
+    form = ProfessorForm()
+
+    escola = request.user.escola
+
+    if request.method == 'POST':
+        print('Ola')
+
+        form = ProfessorForm(request.POST)
+
+        if form.is_valid():
+
+            professor = form.save()
+            
+            professor.escola = escola
+            professor.save()
+       
+            context = {
+                'sucesso': 'Professor criado com sucesso!',
+                 'form': form
+            }
+
+            return render(request, 'Professores/create.html', context)
+        else:
+
+            context = {
+                'erro': 'Erro ao criar o professor!',
+                 'form': form
+            }
+
+            return render(request, 'Professores/create.html', context)
+        
+    context = {
+        'form': form
+    }
+
+    return render(request, 'Professores/create.html', context)
+
+@login_required
+def professor_edit(request, professor_id):
+
+    professor = Professor.objects.get(id=professor_id)
+
+    form = ProfessorEditForm(professor=professor)
+
+    if request.method == 'POST':
+
+        form = ProfessorEditForm(request.POST,professor=professor)
+
+        if form.is_valid():
+
+            professor = form.save()
+
+            professor.save()
+       
+            context = {
+                'sucesso': 'Professor atualizado com sucesso!',
+                'form': form,
+                'professor': professor,
+            }
+
+            return render(request, 'Professores/edit.html', context)
+        else:
+
+            context = {
+                'erro': 'Erro ao atualizar o professor!',
+                'professor': professor,
+                'form': form
+            }
+
+            return render(request, 'Professores/edit.html', context)
+        
+    context = {
+        'professor': professor,
+        'form': form
+    }
+
+    return render(request, 'Professores/edit.html', context)
 
 @login_required
 def professor_detail(request, professor_id):
-    """Detalhes do professor"""
+
     professor = get_object_or_404(Professor, id=professor_id, escola=request.user.escola)
     
-    # Formações
-    formacoes = FormacaoProfessor.objects.filter(professor=professor).order_by('-ano_conclusao')
     
-    # Disciplinas
     disciplinas = DisciplinaProfessor.objects.filter(professor=professor).select_related('disciplina')
     
-    # Turmas atuais
     ano_lectivo_activo = request.user.escola.configuracao.ano_lectivo_activo
+   
     turmas = TurmaDisciplinaProfessor.objects.filter(
         professor=professor,
         ano_lectivo=ano_lectivo_activo
     ).select_related('turma', 'disciplina')
     
-    # Horário
     horario = HorarioAula.objects.filter(professor=professor).select_related(
         'turma', 'disciplina'
     ).order_by('dia_semana', 'hora_inicio')
     
     context = {
         'professor': professor,
-        'formacoes': formacoes,
         'disciplinas': disciplinas,
         'turmas': turmas,
         'horario': horario,
@@ -397,7 +496,36 @@ def professor_detail(request, professor_id):
     
     return render(request, 'professores/detail.html', context)
 
+@login_required
+@require_http_methods('POST')
+def professor_delete(request, professor_id):
 
+    professor = Professor.objects.get(id=professor_id)
+
+    user = request.user
+
+    dados = json.loads(request.body)
+    user = request.user
+    password = dados.get('password')
+
+    if not user.check_password(password.strip()):
+
+        return JsonResponse({'error': 'Credenciais inválidas'}, status=403)
+    
+    
+    LogAuditoria.objects.create(
+        escola=request.user.escola,
+        utilizador=request.user,
+        accao='delete',
+        modulo='Professor',
+        descricao=f'Professor: {professor.nome_completo} eliminado',
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
+    )
+
+    professor.delete()
+
+    return redirect('professor_list')
 
 @login_required
 def matricula_list(request):
@@ -412,18 +540,14 @@ def matricula_list(request):
     
     ano_lectivo_id = request.GET.get('ano_lectivo')
     turma_id = request.GET.get('turma')
-    status = request.GET.get('status')
-    tipo = request.GET.get('tipo')
     busca = request.GET.get('busca')
     
     if ano_lectivo_id:
         matriculas = matriculas.filter(ano_lectivo_id=ano_lectivo_id)
+
     if turma_id:
         matriculas = matriculas.filter(turma_id=turma_id)
-    if status:
-        matriculas = matriculas.filter(status=status)
-    if tipo:
-        matriculas = matriculas.filter(tipo_matricula=tipo)
+    
     if busca:
         matriculas = matriculas.filter(
             Q(aluno__nome_completo__icontains=busca) |
@@ -431,18 +555,28 @@ def matricula_list(request):
             Q(aluno__numero_processo__icontains=busca)
         )
     
-    paginator = Paginator(matriculas, 20)
+    order_by = request.GET.get('nome_completo', '-data_matricula')
+    matriculas = matriculas.order_by(order_by)
+
+    per_page = request.GET.get('per_page', 20)
     page = request.GET.get('page')
+
+    paginator = Paginator(matriculas, per_page)
     matriculas_page = paginator.get_page(page)
-    
+
     anos_lectivos = AnoLectivo.objects.filter(escola=escola)
     turmas = Turma.objects.filter(escola=escola, activo=True)
     
+
     context = {
         'matriculas': matriculas_page,
         'anos_lectivos': anos_lectivos,
         'turmas': turmas,
         'total': matriculas.count(),
+        'per_page': per_page,
+        'busca': busca,
+        'ano_lectivo_id': ano_lectivo_id,
+        'turma_id': turma_id,
     }
     
     return render(request, 'matriculas/list.html', context)
@@ -452,29 +586,17 @@ def matricula_list(request):
 def matricula_create(request):
    
     escola = request.user.escola
+    form = MatriculaForm(escola=escola)
     
     if request.method == 'POST':
-        aluno_id = request.POST.get('aluno')
-        ano_lectivo_id = request.POST.get('ano_lectivo')
-        turma_id = request.POST.get('turma')
-        tipo_matricula = request.POST.get('tipo_matricula')
-        escola_origem = request.POST.get('escola_origem', '')
-        observacoes = request.POST.get('observacoes', '')
+        form = MatriculaForm(request.POST, escola=escola)
         
-        try:
-            aluno = Aluno.objects.get(id=aluno_id, escola=escola)
-            ano_lectivo = AnoLectivo.objects.get(id=ano_lectivo_id, escola=escola)
-            turma = Turma.objects.get(id=turma_id, escola=escola)
-            
-            # Verificar se já existe matrícula para este aluno neste ano
-            if Matricula.objects.filter(aluno=aluno, ano_lectivo=ano_lectivo).exists():
-                messages.error(request, 'Aluno já possui matrícula neste ano lectivo.')
-                return redirect('criar_matricula')
-            
-            # Verificar vagas disponíveis
-            if turma.vagas_disponiveis <= 0:
-                messages.error(request, 'Turma sem vagas disponíveis.')
-                return redirect('criar_matricula')
+        if form.is_valid():
+
+            matricula, aluno = form.save()
+
+            ano_lectivo = AnoLectivo.objects.get(id=matricula.ano_lectivo.id, escola=escola)
+            turma = Turma.objects.get(id=matricula.turma.id, escola=escola)
             
             ano = ano_lectivo.designacao.split('/')[0]
             ultimo_numero = Matricula.objects.filter(
@@ -482,41 +604,91 @@ def matricula_create(request):
             ).count()
             numero_matricula = f'MAT-{ano}-{str(ultimo_numero + 1).zfill(5)}'
             
-            # Criar matrícula
-            matricula = Matricula.objects.create(
-                aluno=aluno,
-                ano_lectivo=ano_lectivo,
-                turma=turma,
-                data_matricula=datetime.now().date(),
-                numero_matricula=numero_matricula,
-                tipo_matricula=tipo_matricula,
-                escola_origem=escola_origem,
-                observacoes=observacoes,
-                matriculado_por=request.user
-            )
-            
-            # Atualizar vagas da turma
+            aluno.save()
+
+            matricula.numero_matricula = numero_matricula
+            matricula.matriculado_por = request.user
+            matricula.aluno = aluno
+            matricula.escola = escola
+
+            matricula.save()
+
             turma.vagas_disponiveis -= 1
             turma.save()
+            context = {
+                'sucesso': f'Matrícula {matricula.numero_matricula} criada com sucesso!',
+                'form': form
+            }
+            return render( request, 'matriculas/create.html', context)
             
-            messages.success(request, f'Matrícula {numero_matricula} criada com sucesso!')
-            return redirect('detalhe_matricula', matricula_id=matricula.id)
-            
-        except Exception as e:
-            messages.error(request, f'Erro ao criar matrícula: {str(e)}')
-    
-    # Dados para o formulário
-    alunos = Aluno.objects.filter(escola=escola, status='Matriculado')
-    anos_lectivos = AnoLectivo.objects.filter(escola=escola)
-    turmas = Turma.objects.filter(escola=escola, activo=True)
+        else:
+            context = {
+                'erro': f'Erro, ao realizar matrícula!',
+                'form': form
+            }
+            return render( request, 'matriculas/create.html', context)
     
     context = {
-        'alunos': alunos,
-        'anos_lectivos': anos_lectivos,
-        'turmas': turmas,
+        'form': form,
+        
     }
     
     return render(request, 'matriculas/create.html', context)
+
+@login_required
+def matricula_update(request, matricula_id):
+   
+    matricula = Matricula.objects.get(id=matricula_id)
+    form = MatriculaEditForm(matricula=matricula)
+    
+    if request.method == 'POST':
+        form = MatriculaEditForm(request.POST, matricula=matricula)
+        
+        if form.is_valid():
+
+            turma = Turma.objects.get(id=matricula.turma.id, escola=matricula.escola)
+
+            matr, aluno = form.save()
+
+
+
+            print(matr.turma.id, turma.id)
+            
+            
+            aluno.save()
+
+            matr.save()
+
+            if matr.turma.id != turma.id:
+                turma_nova = Turma.objects.get(id=matr.turma.id, escola=matricula.escola)
+                turma.vagas_disponiveis += 1
+                turma_nova.vagas_disponiveis -= 1
+
+                turma_nova.save()
+                turma.save()
+
+            context = {
+                'sucesso': f'Erro, ao atualizar a matrícula!',
+                'matricula': matricula,
+                'form': form
+            }
+            return redirect('matricula_detail', matricula_id=matricula.id)
+            
+        else:
+            context = {
+                'erro': f'Erro, ao atualizar a matrícula!',
+                'matricula': matricula,
+                'form': form,
+            }
+            return render( request, 'matriculas/update.html', context)
+    
+    context = {
+        'form': form,
+        'matricula': matricula,
+        
+    }
+    
+    return render(request, 'matriculas/update.html', context)
 
 
 @login_required
@@ -538,13 +710,65 @@ def matricula_detail(request, matricula_id):
         'encarregados': encarregados,
     }
     
-    return render(request, 'matriculas/detalhe.html', context)
+    return render(request, 'matriculas/detail.html', context)
 
-
-# ============= VIEWS DE TURMA =============
 
 @login_required
 def turma_list(request):
+  
+    escola = request.user.escola
+    
+    turmas = Turma.objects.filter(escola=escola).select_related(
+        'ano_lectivo', 'curso', 'classe', 'director_turma'
+    ).annotate(
+        total_alunos=Count('matricula')
+    ).order_by('-ano_lectivo__activo', 'classe__ordem', 'designacao')
+    
+    ano_lectivo_id = request.GET.get('ano_lectivo')
+    curso_id = request.GET.get('curso')
+    classe_id = request.GET.get('classe')
+    order_by = request.GET.get('order_by')
+    
+    if ano_lectivo_id:
+        turmas = turmas.filter(ano_lectivo_id=ano_lectivo_id)
+    if curso_id:
+        turmas = turmas.filter(curso_id=curso_id)
+    if classe_id:
+        turmas = turmas.filter(classe_id=classe_id)
+    
+    if order_by:
+        turmas = turmas.order_by(order_by)
+    
+    anos_lectivos = AnoLectivo.objects.filter(escola=escola)
+    cursos = Curso.objects.filter(escola=escola, activo=True)
+    classes = Classe.objects.filter(escola=escola)
+
+    ano_lectivo = AnoLectivo.objects.get(
+        Q(escola=escola) and
+        Q(activo=True)
+    )
+
+    if ano_lectivo_id:
+        ano_lectivo = AnoLectivo.objects.get(
+        Q(id=ano_lectivo_id)
+    )
+    
+    
+    context = {
+        'turmas': turmas,
+        'anos_lectivos': anos_lectivos,
+        'cursos': cursos,
+        'classes': classes,
+        'ano_letivo':ano_lectivo,
+        'ano_lectivo': ano_lectivo_id,
+        'curso': curso_id,
+        'classe': classe_id
+    }
+    
+    return render(request, 'turmas/list.html', context)
+
+@login_required
+def turma_estudante_list(request, turma_id):
   
     escola = request.user.escola
     
@@ -568,7 +792,6 @@ def turma_list(request):
     if turno:
         turmas = turmas.filter(turno=turno)
     
-    # Dados para filtros
     anos_lectivos = AnoLectivo.objects.filter(escola=escola)
     cursos = Curso.objects.filter(escola=escola, activo=True)
     classes = Classe.objects.all()
@@ -580,68 +803,107 @@ def turma_list(request):
         'classes': classes,
     }
     
-    return render(request, 'turmas/lista.html', context)
+    return render(request, 'turmas/list.html', context)
 
 
 @login_required
 def turma_create(request):
 
     escola = request.user.escola
+
+    form = TurmaForm(escola=escola)
     
     if request.method == 'POST':
-        ano_lectivo_id = request.POST.get('ano_lectivo')
-        curso_id = request.POST.get('curso')
-        classe_id = request.POST.get('classe')
-        designacao = request.POST.get('designacao')
-        sala = request.POST.get('sala', '')
-        turno = request.POST.get('turno')
-        capacidade = request.POST.get('capacidade_maxima', 40)
-        director_turma_id = request.POST.get('director_turma')
+        form = TurmaForm(request.POST, escola=escola)
         
-        try:
-            # Verificar se já existe turma com mesma designação
-            if Turma.objects.filter(
-                escola=escola,
-                ano_lectivo_id=ano_lectivo_id,
-                classe_id=classe_id,
-                designacao=designacao
-            ).exists():
-                messages.error(request, 'Já existe uma turma com esta designação.')
-                return redirect('criar_turma')
+        
+        if form.is_valid():
+           
+            turma = form.save()
             
-            turma = Turma.objects.create(
-                escola=escola,
-                ano_lectivo_id=ano_lectivo_id,
-                curso_id=curso_id,
-                classe_id=classe_id,
-                designacao=designacao,
-                sala=sala,
-                turno=turno,
-                capacidade_maxima=capacidade,
-                vagas_disponiveis=capacidade,
-                director_turma_id=director_turma_id if director_turma_id else None
-            )
+            return redirect('turma_detail', turma_id=turma.id)
             
-            messages.success(request, 'Turma criada com sucesso!')
-            return redirect('detalhe_turma', turma_id=turma.id)
+        else:
+            context = {
+                'erro': 'Erro ao Criar turma, corrija os erros abaixo!',
+                'form': form
+            }
             
-        except Exception as e:
-            messages.error(request, f'Erro ao criar turma: {str(e)}')
-    
-    anos_lectivos = AnoLectivo.objects.filter(escola=escola)
-    cursos = Curso.objects.filter(escola=escola, activo=True)
-    classes = Classe.objects.all()
-    professores = Professor.objects.filter(escola=escola, status='Activo')
+            return render(request, 'turmas/create.html', context)
     
     context = {
-        'anos_lectivos': anos_lectivos,
-        'cursos': cursos,
-        'classes': classes,
-        'professores': professores,
+
+        'form': form
     }
     
-    return render(request, 'turmas/criar.html', context)
+    return render(request, 'turmas/create.html', context)
 
+@login_required
+def turma_update(request, turma_id):
+
+    turma = Turma.objects.get(id=turma_id)
+
+    escola = request.user.escola
+    
+    form = TurmaEditForm(escola=escola, turma=turma)
+    
+    if request.method == 'POST':
+        form = TurmaEditForm(request.POST, escola=escola, turma=turma)
+        
+        
+        if form.is_valid():
+           
+            turma = form.save()
+            
+            return redirect('turma_detail', turma_id=turma.id)
+            
+        else:
+            context = {
+                'erro': 'Erro ao atualizar turma, corrija os erros abaixo!',
+                'form': form,
+                'turma': turma
+            }
+            
+            return render(request, 'turmas/update.html', context)
+    
+    context = {
+
+        'form': form,
+        'turma': turma
+    }
+    
+    return render(request, 'turmas/update.html', context)
+
+@login_required
+@require_http_methods('POST')
+def turma_delete(request, turma_id):
+
+    turma = Turma.objects.get(id=turma_id)
+
+    user = request.user
+
+    dados = json.loads(request.body)
+    user = request.user
+    password = dados.get('password')
+
+    if not user.check_password(password.strip()):
+
+        return JsonResponse({'error': 'Credenciais inválidas'}, status=403)
+    
+    
+    LogAuditoria.objects.create(
+        escola=request.user.escola,
+        utilizador=request.user,
+        accao='delete',
+        modulo='Turma',
+        descricao=f'Turma: {turma.designacao} eliminado',
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
+    )
+
+    turma.delete()
+
+    return redirect('turma_list')
 
 @login_required
 def turma_detail(request, turma_id):
@@ -656,35 +918,35 @@ def turma_detail(request, turma_id):
         escola=request.user.escola
     )
     
-    matriculas = Matricula.objects.filter(
+    total_alunos  = Matricula.objects.filter(
         turma=turma, 
         status='Activa'
-    ).select_related('aluno').order_by('aluno__nome_completo')
+    ).select_related('aluno').order_by('aluno__nome_completo').count()
     
     disciplinas_professores = TurmaDisciplinaProfessor.objects.filter(
         turma=turma
     ).select_related('disciplina', 'professor')
-    
+
     horarios = turma.horarios.all().select_related('disciplina', 'professor')
     
     context = {
         'turma': turma,
-        'matriculas': matriculas,
         'disciplinas_professores': disciplinas_professores,
         'horarios': horarios,
+        'total_alunos': total_alunos,
     }
     
-    return render(request, 'turmas/detalhe.html', context)
+    return render(request, 'turmas/detail.html', context)
+
 
 
 @login_required
-def lista_disciplinas(request):
-    """Lista todas as disciplinas"""
+def disciplina_list(request):
+    
     escola = request.user.escola
     
     disciplinas = Disciplina.objects.filter(escola=escola).order_by('nome')
     
-    # Filtros
     busca = request.GET.get('busca')
     if busca:
         disciplinas = disciplinas.filter(
@@ -697,43 +959,82 @@ def lista_disciplinas(request):
         'disciplinas': disciplinas,
     }
     
-    return render(request, 'disciplinas/lista.html', context)
+    return render(request, 'disciplinas/list.html', context)
 
 
 @login_required
 def disciplina_create(request):
    
     escola = request.user.escola
-    
-    if request.method == 'POST':
-        codigo = request.POST.get('codigo')
-        nome = request.POST.get('nome')
-        nome_abreviado = request.POST.get('nome_abreviado')
-        descricao = request.POST.get('descricao', '')
-        carga_horaria = request.POST.get('carga_horaria_semanal')
-        
-        try:
-            if Disciplina.objects.filter(escola=escola, codigo=codigo).exists():
-                messages.error(request, 'Já existe uma disciplina com este código.')
-                return redirect('criar_disciplina')
-            
-            disciplina = Disciplina.objects.create(
-                escola=escola,
-                codigo=codigo,
-                nome=nome,
-                nome_abreviado=nome_abreviado,
-                descricao=descricao,
-                carga_horaria_semanal=carga_horaria
-            )
-            
-            messages.success(request, 'Disciplina criada com sucesso!')
 
-            return redirect('lista_disciplinas')
+    form = DisciplinaForm(escola=escola)
+
+    if request.method == 'POST':
+
+        form = DisciplinaForm(request.POST)
+        
+        if form.is_valid():
+
+            disciplina = form.save()
+
+            disciplina.escola = escola
+            disciplina.save()
             
-        except Exception as e:
-            messages.error(request, f'Erro ao criar disciplina: {str(e)}')
+            context = {
+                'sucesso': 'Disciplina criada com sucesso!',
+                'form': form
+            }
+
+            return render(request, 'disciplinas/create.html', context)
+            
+        else:
+            context = {
+                'erro': 'Erro ao criar a Disciplina!',
+                'form': form
+            }
+
+            return render(request, 'disciplinas/create.html', context)
     
-    return render(request, 'disciplinas/criar.html')
+    return render(request, 'disciplinas/create.html', {'form': form})
+
+@login_required
+def disciplina_edit(request, disciplina_id):
+
+    disciplina = Disciplina.objects.get(id=disciplina_id)
+   
+    escola = request.user.escola
+
+    form = DisciplinaEditForm(instance=disciplina)
+
+    if request.method == 'POST':
+
+        form = DisciplinaEditForm(request.POST, instance=disciplina)
+        
+        if form.is_valid():
+
+            disciplina = form.save()
+
+            disciplina.escola = escola
+            disciplina.save()
+            
+            context = {
+                'sucesso': 'Disciplina atualizada com sucesso!',
+                'form': form,
+                'disciplina': disciplina,
+            }
+
+            return render(request, 'disciplinas/edit.html', context)
+            
+        else:
+            context = {
+                'erro': 'Erro ao atualizada a Disciplina!',
+                'disciplina': disciplina,
+                'form': form
+            }
+
+            return render(request, 'disciplinas/edit.html', context)
+    
+    return render(request, 'disciplinas/edit.html', {'form': form,'disciplina': disciplina})
 
 
 @login_required
@@ -759,7 +1060,7 @@ def disciplina_detail(request, disciplina_id):
         'turmas': turmas,
     }
     
-    return render(request, 'disciplinas/detalhe.html', context)
+    return render(request, 'disciplinas/detail.html', context)
 
 
 @login_required
@@ -1620,19 +1921,6 @@ def curso_list(request):
     
     return render(request, 'configuracoes/curso_list.html', context)
 
-
-@login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
-def disciplina_list(request):
-    """Lista de disciplinas"""
-    escola = request.user.escola
-    disciplinas = Disciplina.objects.filter(escola=escola).order_by('nome')
-    
-    context = {
-        'disciplinas': disciplinas,
-    }
-    
-    return render(request, 'configuracoes/disciplina_list.html', context)
 
 
 @login_required

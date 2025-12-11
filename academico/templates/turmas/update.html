@@ -221,12 +221,12 @@
         <div style="display: flex; justify-content: center; width: 100%; height: 100%">
 
             
-            <form action="/criar_disciplina/" method="post" class="container-criar_professor">
+            <form action="{% url "turma_update" turma.id %}" method="post" class="container-criar_professor">
 
                 <div class="header d-flex justify-content-between ">
-                    <h3 class="text-warning">Cadastro de disciplina</h3>
+                    <h3 class="text-warning">Atualização do turma</h3>
                     
-                    <a href="/listar_disciplina/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/turmas/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -237,7 +237,7 @@
 
                     <div class="alert alert-info">
                         <span>ℹ️</span>
-                        <span>Preencha todos os campos obrigatórios para salvar informações</span>
+                        <span>Preencha todos os campos obrigatórios para salvar as alterações</span>
                     </div>
                     
                 
@@ -262,60 +262,38 @@
 
                         <div class="form-group">
 
-                            <label for="nome">
+                            <label for="designacao">
                                 
                                 <span >
-                                    Nome da disciplina
+                                    Nome da turma
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            <input type="text" name="nome" placeholder="Nome da disciplina" 
-                                oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                            {{form.designacao}}
                                 
-                            {% if form.nome.errors %}
+                            {% if form.designacao.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.nome.errors}}
+                                    {{form.designacao.errors}}
                                 </div>
                             {% endif %}
                             
                         </div>
 
                         <div class="form-group">
-                            
-                            <label for="abreviatura">
 
-                                Abreviatura
-                            </label>
-
-                            <input type="text"  placeholder="Abreviatura" oninput="this.value=this.value.toUpperCase()"
-                                name="abreviatura" id="abreviatura">
-
-                            {% if form.abreviatura.errors %}
-                                <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.abreviatura.errors}}
-                                </div>
-                            {% endif %}
-                            
-                        </div>
-
-                        
-
-                        <div class="form-group">
-
-                            <label for="professor">
+                            <label for="ano_lectivo">
                                 <span>
-                                    Professor
+                                    Ano Lectivo
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            {{form.professor}}
+                            {{form.ano_lectivo}}
 
-                            {% if form.professor.errors %}
+                            {% if form.ano_lectivo.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.professor.errors}}
+                                    {{form.ano_lectivo.errors}}
                                 </div>
                             {% endif %}
 
@@ -337,6 +315,128 @@
                             {% if form.classe.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
                                     {{form.classe.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="curso">
+
+                                <span >
+                                    Curso 
+                                    <span class="text-danger">*</span>
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.curso}}
+
+                            {% if form.curso.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.curso.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="director_turma">
+
+                                <span >
+                                    Coordenadaor da turma 
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.director_turma}}
+
+                            {% if form.director_turma.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.director_turma.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="turno">
+
+                                <span >
+                                    Período 
+                                    <span class="text-danger">*</span>
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.turno}}
+
+                            {% if form.turno.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.turno.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="sala">
+
+                                <span >
+                                    Sala 
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.sala}}
+
+                            {% if form.sala.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.sala.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="capacidade_maxima">
+
+                                <span >
+                                    Capacidade máxima 
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.capacidade_maxima}}
+
+                            {% if form.capacidade_maxima.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.capacidade_maxima.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="vagas_disponiveis">
+
+                                <span >
+                                    Vagas disponível 
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.vagas_disponiveis}}
+
+                            {% if form.vagas_disponiveis.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.vagas_disponiveis.errors}}
                                 </div>
                             {% endif %}
                             

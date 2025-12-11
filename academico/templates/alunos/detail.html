@@ -81,30 +81,44 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Endereço completo:</strong></div>
-                    <div class="col-sm-9">{{ aluno.endereco_completo }}</div>
+                    <div class="col-sm-9">{{ aluno.endereco_completo|default:"Sem informações" }}</div>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-sm-3"><strong>Craido em:</strong></div>
+                    <div class="col-sm-3"><strong>Bairro:</strong></div>
+                    <div class="col-sm-9">{{ aluno.bairro|default:"Sem informações" }}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Criado em:</strong></div>
                     <div class="col-sm-9">{{ aluno.data_criacao }}</div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Criado Por:</strong></div>
-                    <div class="col-sm-9">{{ aluno.utilizador.get_full_name }}</div>
+                    <div class="col-sm-9">{{ aluno.criado_por.get_full_name }}</div>
                 </div>
 
                 <hr>
-                <h3>Dados da matrícula</h3>
+                <h3>Dados da matrícula</h3> <br>
 
-                <div class="row mb-3">
-                    <div class="col-sm-3"><strong>Classe:</strong></div>
-                    <div class="col-sm-9">{{ matricula.turma.classe }} classe</div>
-                </div>
+                {% for matricula in matriculas %}
+                
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Classe:</strong></div>
+                        <div class="col-sm-9">{{ matricula.turma.classe }} classe</div>
+                    </div>
 
-                <div class="row mb-3">
-                    <div class="col-sm-3"><strong>Turma:</strong></div>
-                    <div class="col-sm-9">{{ matricula.turma.turma }}</div>
-                </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Turma:</strong></div>
+                        <div class="col-sm-9">{{ matricula.turma }}</div>
+                    </div>
+                    <hr>
+                {% empty %}
+                    <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Estudante ainda não foi matriculado neste ano letivo.
+                    </div>
+                {% endfor %}
                 
             </div>
         </div>

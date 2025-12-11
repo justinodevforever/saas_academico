@@ -18,13 +18,13 @@
     <div style="display: flex; width: 100%; align-items: center; justify-content: center; flex-direction: column;">
 
         <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
-            <h1 style="margin-left: 20px;" >Lista das disciplinas</h1>
+            <h1 style="margin-left: 20px;" >Lista dos Professores</h1>
 
-            <form action="/lista_disciplina/" method="get" 
+            <form action="/professores/" method="get" 
                 class="btn-group btn-group-sm">
 
                 <input type="search" name="nome_filter" style="border-radius: 4px 0px 0px 4px;"
-                class="form-control" placeholder="Nome da disciplina ou abreviatura">
+                class="form-control" placeholder="Nome do professor">
 
                 <button class="btn btn-primary"><i class="bi bi-search"></i></button>
 
@@ -34,15 +34,13 @@
         <div class="card" style="display:flex; width: 97%; align-self: center;">
 
             <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
-                <h1 style="margin-left: 20px;" class="text-warning"></h1>
-                
-                {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                <a href="/criar_disciplina/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
-                    <i class="bi bi-plus-circle" aria-hidden="true"></i></i>Novo
-                </a>
-                {%endif%}
+            <h1 style="margin-left: 20px;" class="text-warning"></h1>
+
+            <a href="/professores/criar/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
+                <i class="bi bi-plus-circle" aria-hidden="true"></i></i>Novo
+            </a>
             
-            </div>
+        </div>
 
             <form method="get" class="form-inline mb-3" style="padding: 12px; height: 7px;">
                 <input style='border: 1px solid orange; width: 70px;'
@@ -64,45 +62,46 @@
                         <thead class="table-light">
                             <tr>
                                 <th>
-                                    Nome da disciplina
-                                    <a href="?order_by=disciplina{% if nome_filter %}&nome_filter={{ nome_filter|urlencode  }}{% endif %}"
+                                    Nome Completo
+                                    <a href="?order_by=nome_completo{% if nome_filter %}&nome_filter={{ nome_filter|urlencode  }}{% endif %}"
                                     >
                                         <i class="bi bi-arrow-down-up"></i>
                                     </a>
-                                    <a href="/listar_disciplina/?{% if nome_filter %}nome_filter={{ nome_filter|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
+                                    <a href="/lista_professor/?{% if nome_filter %}nome_filter={{ nome_filter|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
                                 </th>
                                 
-                                <th>Abreviatura</th>
-                                <th>Classe</th>
+                                <th>Data de nascimento</th>
+                                <th>Género</th>
+                                <th>Telefone</th>
                             
                                 <th>Opções</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for disciplina in disciplinas %}
+                            {% for prof in professores %}
                             <tr>
-                                <td>{{ disciplina.nome }}</td>
-                                <td>{{ disciplina.abreviatura }}</td>
-                                <td>{{ disciplina.classe.denominacao }}</td>
+                                <td>{{ prof.nome_completo }}</td>
+                                <td>{{ prof.data_nascimento }}</td>
+                                <td>{{ prof.get_genero_display }}</td>
+                                <td>{{ prof.telefone }}</td>
                                 
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{% url "visualizar_disciplina" disciplina.id %}" 
+                                        <a href="{% url "professor_detail" prof.id %}" 
                                             class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         
-                                        {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                                        
-                                        <a href="{% url "editar_disciplina" disciplina.id %}" 
+                                        <a href="{% url "professor_edit" prof.id %}" 
                                             class="btn btn-outline-warning" title="Editar">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                         </a>
-                                        <button onclick="confirmardelecao('{{disciplina.id}}')"
+
+                                        <button onclick="confirmardelecao('{{prof.id}}')"
                                         class="btn btn-outline-danger" title="Deletar">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                        {%endif%}
+                                        
                                     </div>
                                 </td>
                             </tr>
@@ -118,21 +117,21 @@
                     </table>
                 </div>
 
-                {% if disciplinas.has_other_pages %}
+                {% if professores.has_other_pages %}
                     <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
-                        {% if disciplinas.has_previous %}
+                        {% if professores.has_previous %}
                             <li class="page-item">
                                 
-                                <a class="page-link" href="?page={{ disciplinas.previous_page_number }}&per_page={{per_page}}" aria-label="Previous">
+                                <a class="page-link" href="?page={{ professores.previous_page_number }}&per_page={{per_page}}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                     <span class="sr-only">Anterior</span>
                                 </a>
                             </li>
                         {% endif %}
 
-                        {% for num in disciplinas.paginator.page_range %}
-                            {% if disciplinas.number == num %}
+                        {% for num in professores.paginator.page_range %}
+                            {% if professores.number == num %}
                                 <li class="page-item active">
                                     <span class="page-link">{{ num }}</span>
                                 </li>
@@ -142,10 +141,10 @@
                                 </li>
                             {% endif %}
                         {% endfor %}
-                    {% if disciplinas.has_next %}
+                    {% if professores.has_next %}
                         
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ disciplinas.next_page_number }}&per_page={{per_page}}" aria-label="Próximo">
+                            <a class="page-link" href="?page={{ professores.next_page_number }}&per_page={{per_page}}" aria-label="Próximo">
                                 <span aria-hidden="true">&raquo;</span>
                                 <span class="sr-only">Próximo</span>
                             </a>
@@ -160,7 +159,7 @@
     <div id="modalconfirmacao" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; min-width: 300px;">
             <h3>confirmar exclusão</h3>
-            <p id="mensagemconfirmacao">Tem certeza que deseja deletar esta disciplina?</p>
+            <p id="mensagemconfirmacao">Tem certeza que deseja deletar este professor?</p>
 
             <input type="password" class="form-control" autocomplete="new-password"
                 id="password" placeholder="Confirme sua senha" name="password" required>
@@ -204,7 +203,7 @@
             const password = passwordInput.value;
 
             try {
-            const response = await fetch(`/delete_disciplina/${itemparadeletar}/`, {
+            const response = await fetch(`/professores/${itemparadeletar}/excluir/`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
@@ -216,7 +215,7 @@
             });
 
             if (response.ok) {
-                sms.innerText = "Disciplina eliminada com sucesso!";
+                sms.innerText = "Professor eliminado com sucesso!";
                 sms.style.color = "green";
               
             } else {

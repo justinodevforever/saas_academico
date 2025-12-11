@@ -15,22 +15,30 @@ urlpatterns = [
     path('alunos/<uuid:aluno_id>/excluir/', views.aluno_delete, name='aluno_delete'),
     
     path('professores/', views.professor_list, name='professor_list'),
+    path('professores/criar/', views.professor_create, name='professor_create'),
     path('professores/<uuid:professor_id>/', views.professor_detail, name='professor_detail'),
+    path('professores/<uuid:professor_id>/editar/', views.professor_edit, name='professor_edit'),
+    path('professores/<uuid:professor_id>/excluir/', views.professor_delete, name='professor_delete'),
     
     path('turmas/', views.turma_list, name='turma_list'),
     path('turmas/criar/', views.turma_create, name='turma_create'),
     path('turmas/<uuid:turma_id>/', views.turma_detail, name='turma_detail'),
+    path('turmas/<uuid:turma_id>/update/', views.turma_update, name='turma_update'),
+    path('turmas/<uuid:turma_id>/estudantes/', views.turma_estudante_list, name='turma_estudante_list'),
+    path('turmas/<uuid:turma_id>/excluir/', views.turma_delete, name='turma_delete'),
     #path('turmas/<uuid:turma_id>/atribuir-professor/', views.turma_atribuir_professor, name='turma_atribuir_professor'),
     
     path('matriculas/', views.matricula_list, name='matricula_list'),
+    path('matriculas/<uuid:matricula_id>/', views.matricula_detail, name='matricula_detail'),
     path('matriculas/criar/', views.matricula_create, name='matricula_create'),
     path('matriculas/criar/<uuid:aluno_id>/', views.matricula_create, name='matricula_create_aluno'),
+    path('matriculas/<uuid:matricula_id>/editar', views.matricula_update, name='matricula_update'),
     #path('matriculas/<uuid:matricula_id>/cancelar/', views.matricula_cancelar, name='matricula_cancelar'),
     
     path('disciplinas/', views.disciplina_list, name='disciplina_list'),
     path('disciplinas/criar/', views.disciplina_create, name='disciplina_create'),
-    path('disciplinas/<uuid:disciplina_id>/lancar-notas/', views.disciplina_detail, name='disciplina_detail'),
-    #path('disciplinas/pauta/<uuid:turma_id>/<uuid:periodo_id>/', views.disciplina_pauta, name='disciplina_pauta'),
+    path('disciplinas/<uuid:disciplina_id>', views.disciplina_detail, name='disciplina_detail'),
+    path('disciplinas/<uuid:disciplina_id>/', views.disciplina_edit, name='disciplina_edit'),
 
     path('avaliacoes/', views.avaliacao_list, name='avaliacao_list'),
     path('avaliacoes/criar/', views.avaliacao_create, name='avaliacao_create'),

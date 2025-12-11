@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+<style>
+    table{
+        width: 99%;
+    }
+    th{
+        padding: 4px;
+    }
+    td{
+        padding: 4px;
+    }
+    .badge{
+        position: relative;
+    }
+</style>
+<div class="column" style="display: flex; gap: 10px; padding: 20px; width: 100%; height: 100%;
+     justify-content: center;">
+    <div class="col-md-8" style="width: 100%;">
+        
+        <div class="card" style="width: 97%;">
+            <div class="d-flex justify-content-between card-header text-white" style="background-color: #1E3A8A;" >
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Informações da disciplina
+                </h5>
+                <a href="/disciplinas/" class="btn" 
+                style="background: #3B82F6; color: #fff;">
+                    lista
+                </a>
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nome da disciplina:</strong></div>
+                    <div class="col-sm-9">{{ disciplina.nome }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Abreviatura:</strong></div>
+                    <div class="col-sm-9">{{ disciplina.nome_abreviado }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Código:</strong></div>
+                    <div class="col-sm-9">{{ disciplina.codigo }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Descrição:</strong></div>
+                    <div class="col-sm-9">{{ disciplina.descricao|default:"Sem informaçõe"}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Carga horária:</strong></div>
+                    <div class="col-sm-9">{{ disciplina.carga_horaria_semanal}}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Ativa:</strong></div>
+                    <div class="col-sm-9">
+                        
+                        
+                        {% if disciplina.activo == True %}
+                            
+                            <span class="badge bg-success">Sim</span>
+                            
+                            
+                        {% else %}
+                            <span class="badge bg-danger">Não</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Turma</h4>
+                {% for turma in turmas %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>turma:</strong></div>
+                        <div class="col-sm-9">{{ turma.designacao}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Sala:</strong></div>
+                        <div class="col-sm-9">{{ turma.sala}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>classe:</strong></div>
+                        <div class="col-sm-9">{{ turma.classe}}</div>
+                    </div>
+                    
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhuma turma vinculada a esta disciplina.
+                    </div>
+                {% endfor %}
+                <hr>
+                <h4>Professores da disciplina</h4>
+                {% for prof in professores %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Nome:</strong></div>
+                        <div class="col-sm-9">{{ prof.nome_completo}}</div>
+                    </div>
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhum professor vinculado a esta disciplina.
+                    </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+    </div>
+   
+</div>
+{% endblock %}
+

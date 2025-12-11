@@ -11,6 +11,12 @@
             align-items: start;
             text-align: start;
         }
+        @media (max-width: 500px) {
+            .pesquisa{
+                flex-direction: column;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -20,11 +26,44 @@
         <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
             <h1 style="margin-left: 20px;" >Estudantes Maticulados</h1>
 
-            <form action="/criar_matricula/" method="get" 
+            
+        </div>
+
+        <div style="display: flex; width: 97%; justify-content: space-between; gap: 20px;
+        align-items: center; margin-bottom: 10px;" class="pesquisa">
+
+            <form action="/matriculas/" method="get"  style="width: 70%;"
                 class="btn-group btn-group-sm">
 
-                <input type="search" name="nome_filter" style="border-radius: 4px 0px 0px 4px;"
-                class="form-control" placeholder="Nome do estudante">
+                <input type="search" name="busca" style="border-radius: 4px 0px 0px 4px;"
+                class="form-control" placeholder="Nome, nº matricula, nº de processo">
+
+                <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+
+            </form>
+            
+            <form action="/matriculas/" method="get"  style="width: 70%;"
+                class="btn-group btn-group-sm">
+
+                <select name="ano_lectivo" id="ano_lectivo" class="form-control" 
+                style="border-radius: 4px 0px 0px 4px; ">
+                    {% for ano in anos_lectivos %}
+                        <option value="{{ano.id}}" {% if ano.activo == True %}selected{% endif %}>{{ano}}</option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+
+            </form>
+
+            <form action="/matriculas/" method="get" style="width: 70%;"
+                class="btn-group btn-group-sm">
+
+                <select name="turma" id="turma" class="form-control" style="border-radius: 4px 0px 0px 4px;">
+                    {% for turma in turmas %}
+                        <option value="{{turma.id}}" >{{turma}}</option>
+                    {% endfor %}
+                </select>
 
                 <button class="btn btn-primary"><i class="bi bi-search"></i></button>
 
@@ -34,29 +73,26 @@
         <div class="card" style="display:flex; width: 97%; align-self: center;">
 
             <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
-                <h1 style="margin-left: 20px;" class="text-warning"></h1>
+                <form method="get" class="form-inline mb-3" style="padding: 12px; height: 7px;">
+                    <input style='border: 1px solid orange; width: 70px;'
+                        type="number" 
+                        id="per_page" 
+                        name="per_page" 
+                        class="form-control form-control-sm" 
+                        min="1" 
+                        max="200" 
+                        value="{{ per_page|default:20 }}" 
+                        onchange="this.form.submit()"
+                        
+                    >
+                </form>
 
-                {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                <a href="/criar_matricula/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
+                <a href="/matriculas/criar/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
                     <i class="bi bi-plus-circle" aria-hidden="true"></i></i>Novo
                 </a>
-                {%endif%}
                 
             </div>
 
-            <form method="get" class="form-inline mb-3" style="padding: 12px; height: 7px;">
-                <input style='border: 1px solid orange; width: 70px;'
-                    type="number" 
-                    id="per_page" 
-                    name="per_page" 
-                    class="form-control form-control-sm" 
-                    min="1" 
-                    max="200" 
-                    value="{{ per_page|default:20 }}" 
-                    onchange="this.form.submit()"
-                    
-                >
-            </form>
 
             <div class="card-body" style="border-radius: 4px;">
                 <div class="table-responsive">
@@ -65,15 +101,15 @@
                             <tr>
                                 <th>
                                     Nome Completo
-                                    <a href="?order_by=nome_completo{% if nome_filter %}&nome_filter={{ nome_filter|urlencode  }}{% endif %}"
+                                    <a href="?order_by=nome_completo{% if busca %}&busca={{ busca|urlencode  }}{% endif %}{% if turma_id %}&turma_id={{ turma_id|urlencode  }}{% endif %}{% if ano_lectivo_id %}&ano_lectivo_id={{ ano_lectivo_id|urlencode  }}{% endif %}"
                                     >
                                         <i class="bi bi-arrow-down-up"></i>
                                     </a>
-                                    <a href="/lista_matricula/?{% if nome_filter %}nome_filter={{ nome_filter|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
+                                    <a href="/matriculas/{% if busca %}?busca={{ busca|urlencode  }}{% endif %}"> <i class="bi bi-eraser" style="font-size: 1.1rem; margin-left: 5px;"></i></a>
                                 </th>
                                 
                                 <th>Idade</th>
-                                <th>Classe</th>
+                                <th>Tipo de matrícula</th>
                                 <th>Turma</th>
                                 <th>Status</th>
                             
@@ -83,42 +119,41 @@
                         <tbody>
                             {% for matricula in matriculas %}
                             <tr>
-                                <td>{{ matricula.estudante.nome_completo }}</td>
-                                <td>{{ matricula.estudante.idade }}</td>
-                                <td>{{ matricula.turma.classe.denominacao }}</td>
-                                <td>{{ matricula.turma.turma }}</td>
-                                {% if matricula.status_matricula == 'cancelada' %}
+                                <td>{{ matricula.aluno.nome_completo }}</td>
+                                <td>{{ matricula.aluno.idade }}</td>
+                                <td>{{ matricula.tipo_matricula }}</td>
+                                <td>{{ matricula.turma }}</td>
 
-                                    <td><span class="text-danger">{{ matricula.get_status_matricula_display }}</span></td>
+                                {% if matricula.status == 'Cancelada' %}
 
-                                {% elif matricula.status_matricula == 'ativa' %}
+                                    <td><span class="text-danger">{{ matricula.get_status_display }}</span></td>
 
-                                    <td><span class="text-warning">{{ matricula.get_status_matricula_display }}</span></td>
+                                {% elif matricula.status == 'Activa' %}
 
-                                {% elif matricula.status_matricula == 'finalizada' %}
+                                    <td><span class="text-warning">{{ matricula.get_status_display }}</span></td>
 
-                                    <td><span class="text-success">{{ matricula.get_status_matricula_display }}</span></td>
+                                {% elif matricula.status == 'Finalizada' %}
 
-                                {% elif matricula.status_matricula == 'desistente' %}
+                                    <td><span class="text-success">{{ matricula.get_status_display }}</span></td>
 
-                                    <td><span class="text-danger">{{ matricula.get_status_matricula_display }}</span></td>
+                                {% elif matricula.status == 'desistente' %}
+
+                                    <td><span class="text-danger">{{ matricula.get_status_display }}</span></td>
 
                                 {% endif %}
                                 
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{% url "visualizar_matricula" matricula.id %}" 
+                                       
+                                        <a href="{% url "matricula_detail" matricula.id %}" 
                                             class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        
-                                        {% if request.user.role.nome == 1  or request.user.role.nome == 3 %}
-                                        <a href="{% url "editar_matricula" matricula.id %}" 
+                                        <a href="{% url "matricula_update" matricula.id %}" 
                                             class="btn btn-outline-warning" title="Editar">
-                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                            <i class="bi bi-pencil"></i>
                                         </a>
                                       
-                                        {%endif%}
                                     </div>
                                 </td>
                             </tr>

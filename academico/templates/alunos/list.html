@@ -34,23 +34,26 @@
         <div class="card" style="display:flex; width: 97%; align-self: center;">
 
             <div style="display: flex; width: 97%; justify-content: space-between; align-items: center;">
-            <h1 style="margin-left: 20px;" class="text-warning"></h1>
-            
-        </div>
+                <form method="get" class="form-inline mb-3" style="padding: 12px; height: 7px;">
+                    <input style='border: 1px solid orange; width: 70px;'
+                        type="number" 
+                        id="per_page" 
+                        name="per_page" 
+                        class="form-control form-control-sm" 
+                        min="1" 
+                        max="200" 
+                        value="{{ per_page|default:20 }}" 
+                        onchange="this.form.submit()"
+                        
+                    >
+                </form>
 
-            <form method="get" class="form-inline mb-3" style="padding: 12px; height: 7px;">
-                <input style='border: 1px solid orange; width: 70px;'
-                    type="number" 
-                    id="per_page" 
-                    name="per_page" 
-                    class="form-control form-control-sm" 
-                    min="1" 
-                    max="200" 
-                    value="{{ per_page|default:20 }}" 
-                    onchange="this.form.submit()"
-                    
-                >
-            </form>
+                <a href="/alunos/criar/" class="btn btn-success" style="display:flex; height: 40px; gap: 10px;">
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i></i>Novo
+                </a>
+                
+            </div>
+
 
             <div class="card-body" style="border-radius: 4px;">
                 <div class="table-responsive">
@@ -86,6 +89,10 @@
                                         <a href="{% url "aluno_detail" aluno.id %}" 
                                             class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url "aluno_update" aluno.id %}" 
+                                            class="btn btn-outline-warning" title="Editar">
+                                            <i class="bi bi-pencil"></i>
                                         </a>
                                         
                                     </div>

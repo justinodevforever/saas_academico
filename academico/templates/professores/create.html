@@ -219,14 +219,13 @@
     </head>
     <body >
         <div style="display: flex; justify-content: center; width: 100%; height: 100%">
-
             
-            <form action="{% url "editar_professor" professor.id%}" method="post" class="container-criar_professor">
+            <form action="/professores/criar/" method="post" class="container-criar_professor">
 
                 <div class="header d-flex justify-content-between ">
-                    <h3 class="text-warning">Atualização do Professor</h3>
+                    <h3 class="text-warning">Cadastro de Professor</h3>
                     
-                    <a href="/lista_professor/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/professores/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -237,7 +236,7 @@
 
                     <div class="alert alert-info">
                         <span>ℹ️</span>
-                        <span>Preencha todos os campos obrigatórios para salvar as alterações</span>
+                        <span>Preencha todos os campos obrigatórios para salvar informações</span>
                     </div>
                     
                 
@@ -258,6 +257,8 @@
                         </div>
                     {% endif %}
 
+                    <div class="section-title">Infomações pessoais</div>
+
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -270,12 +271,33 @@
                                 </span>
                             </label>
 
-                            <input type="text" name="nome_completo" placeholder="Nome completo" value="{{professor.nome_completo}}"
-                                aria-describedby="helpId" autocomplete="off">
+                                        
+                            {{form.nome_completo}}
                                 
                             {% if form.nome_completo.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
                                     {{form.nome_completo.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="bi">
+                                
+                                <span >
+                                    B.I
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                                        
+                            {{form.bi}}
+                                
+                            {% if form.bi.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.bi.errors}}
                                 </div>
                             {% endif %}
                             
@@ -291,8 +313,7 @@
                                 </span>
                             </label>
 
-                            <input type="date"  placeholder="Data de nascimento" value="{{professor.data_nascimento}}"
-                                name="data_nascimento" id="data_nascimento">
+                            {{form.data_nascimento}}
 
                             {% if form.data_nascimento.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -308,43 +329,14 @@
 
                                 <span >
                                     Telefone
-                                    <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Telefone" value="{{professor.telefone}}"
-                             name="telefone" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.telefone}}
 
                             {% if form.telefone.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
                                     {{form.telefone.errors}}
-                                </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="categoria">
-
-                                <span >
-                                    Categoria
-                                    <span class="text-danger">*</span>
-                                </span>
-                            </label>
-
-                            <select name="categoria" id="categoria">
-                                <option value="{{professor.categoria.id}}" selected>{{professor.categoria.categoria}}</option>
-                                {% for categoria in categorias %}
-                                
-                                    <option value="{{professor.categoria.id}}">{{categoria.categoria}}</option>
-                                {% endfor %}
-                            </select>
-
-                            {% if form.categoria.errors %}
-                                <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.categoria.errors}}
                                 </div>
                             {% endif %}
 
@@ -360,12 +352,7 @@
                                 </span>
                     
                             </label>
-                            <select name="genero"  >
-                                <option value="{{professor.genero}}">{{professor.get_genero_display}} </option>
-                                <option value="M">Masculino </option>
-                                <option value="F">Feminino </option>
-                                <option value="outro">Outro </option>
-                            </select>
+                            {{form.genero}}
 
                             {% if form.genero.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -375,8 +362,220 @@
                             
                         </div>
 
+                        <div class="form-group">
+
+                            <label for="email">
+                                
+                                <span >
+                                    email
+                                </span>
+                            </label>
+
+                            {{form.email}}
+                                
+                            {% if form.email.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.email.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="endereco">
+                                
+                                <span >
+                                    Endereço
+                                </span>
+                            </label>
+
+                                        
+                            {{form.endereco}}
+                                
+                            {% if form.endereco.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.endereco.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
                         
                     </div>
+
+                    <div class="section-title">Infomações profissionais</div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="especialidade">
+                                
+                                <span >
+                                    Especialidade
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                                        
+                            {{form.especialidade}}
+                                
+                            {% if form.especialidade.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.especialidade.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="nivel_academico">
+                                
+                                <span >
+                                    Nível acadêmico
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                                        
+                            {{form.nivel_academico}}
+                                
+                            {% if form.nivel_academico.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.nivel_academico.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="instituicao_formacao">
+                                
+                                <span >
+                                    Instituição de formação
+                                </span>
+                            </label>
+
+                                        
+                            {{form.instituicao_formacao}}
+                                
+                            {% if form.instituicao_formacao.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.instituicao_formacao.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="anos_experiencia">
+                                
+                                <span >
+                                    Anos experiência
+                                </span>
+                            </label>
+
+                                        
+                            {{form.anos_experiencia}}
+                                
+                            {% if form.anos_experiencia.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.anos_experiencia.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="numero_agente">
+                                
+                                <span >
+                                    número de agente
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                                        
+                            {{form.numero_agente}}
+                                
+                            {% if form.numero_agente.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.numero_agente.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        
+
+                        <div class="form-group">
+
+                            <label for="tipo_contrato">
+                                
+                                <span >
+                                    Tipo de contrato
+                                </span>
+                            </label>
+
+                                        
+                            {{form.tipo_contrato}}
+                                
+                            {% if form.tipo_contrato.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.tipo_contrato.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="carga_horaria_semanal">
+                                
+                                <span >
+                                    Carga horária semanal
+                                </span>
+                            </label>
+
+                                        
+                            {{form.carga_horaria_semanal}}
+                                
+                            {% if form.carga_horaria_semanal.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.carga_horaria_semanal.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        
+
+                        <div class="form-group">
+
+                            <label for="categoria">
+
+                                <span >
+                                    Categoria
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                            {{form.categoria}}
+
+                            {% if form.categoria.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.categoria.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
 
                         <button type="submit" class="btn btn-success" style="width: 80%; ">

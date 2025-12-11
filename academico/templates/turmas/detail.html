@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+<style>
+    table{
+        width: 99%;
+    }
+    th{
+        padding: 4px;
+    }
+    td{
+        padding: 4px;
+    }
+</style>
+<div class="column" style="display: flex; gap: 10px; padding: 20px; width: 100%; height: 100%;
+     justify-content: center;">
+    <div class="col-md-8" style="width: 100%;">
+        
+        <div class="card" style="width: 97%;">
+            <div class="d-flex justify-content-between card-header text-white" style="background-color: #1E3A8A;" >
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Informações da turma
+                </h5>
+                <a href="/turmas/" class="btn" 
+                style="background: #3B82F6; color: #fff;">
+                    lista
+                </a>
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nome da turma:</strong></div>
+                    <div class="col-sm-9">{{ turma }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Sala:</strong></div>
+                    <div class="col-sm-9">{{ turma.sala }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Capacidade máxima:</strong></div>
+                    <div class="col-sm-9">{{ turma.capacidade_maxima }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Vagas disponíveis:</strong></div>
+                    <div class="col-sm-9">{{ turma.vagas_disponiveis }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Ano lectivo:</strong></div>
+                    <div class="col-sm-9">{{ turma.ano_lectivo }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>classe:</strong></div>
+                    <div class="col-sm-9">{{ turma.classe }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Período:</strong></div>
+                    <div class="col-sm-9">{{ turma.turno}}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Total de estudantes:</strong></div>
+                    <div class="col-sm-9">{{total_alunos}}</div>
+                </div>
+
+                <hr>
+                <h4>Disciplinas Relacionadas a turma</h4>
+                {% for disc in disciplinas_professores %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Nome:</strong></div>
+                        <div class="col-sm-9">{{ disc.disciplina.nome}}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Professor:</strong></div>
+                        <div class="col-sm-9">{{ disc.professor.nome_completo}}</div>
+                    </div>
+                    <hr>
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhuma disciplina vinculada a esta turma.
+                    </div>
+                {% endfor %}
+
+                <h4>Horário da turma</h4>
+                {% for h in horarios %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Turma:</strong></div>
+                        <div class="col-sm-9">{{ h.turma}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Disciplina:</strong></div>
+                        <div class="col-sm-9">{{ h.disciplina}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Dia da semana:</strong></div>
+                        <div class="col-sm-9">{{ h.get_dia_semana_display}}</div> 
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Hora início/ Hora Fim:</strong></div>
+                        <div class="col-sm-9">{{ h.hora_inicio}} / {{h.hora_fim}}</div> 
+                    </div>
+                   <hr>
+                {%empty%}
+                     <div colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <br>Nenhum horário vinculado a esta turma.
+                    </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+            {% if total_alunos <= 0%}
+                <button onclick="confirmardelecao('{{turma.id}}')" class="btn btn-outline-danger" title="Deletar">
+                    Eliminar
+                </button>
+            {% endif %}
+    </div>
+   
+
+   <div id="modalconfirmacao" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; min-width: 300px;">
+            <h3>confirmar exclusão</h3>
+            <p id="mensagemconfirmacao">Tem certeza que deseja deletar esta turma?</p>
+
+            <input type="password" class="form-control" autocomplete="new-password"
+                id="password" placeholder="Confirme sua senha" name="password" required>
+                
+            <div id="sms" style="color: red;"></div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button onclick="fecharmodal()" class="btn" style="background: #6c757d; color: white; margin-right: 10px;">
+                    sair
+                </button>
+                <button onclick="deletarItem()" class="btn btn-danger">
+                    confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let itemparadeletar = null;
+        
+        function confirmardelecao(itemid) {
+            itemparadeletar = itemid;
+            document.getElementById('modalconfirmacao').style.display = 'block';
+        }
+        
+        function fecharmodal() {
+            document.getElementById('modalconfirmacao').style.display = 'none';
+            itemparadeletar = null;
+            location.reload()
+        }
+        
+        async function deletarItem() {
+            const passwordInput = document.getElementById('password');
+            const sms = document.getElementById('sms');
+
+            if (!passwordInput || passwordInput.value.trim() === '') {
+            alert('O campo senha é obrigatório!');
+            return;
+            }
+
+            const password = passwordInput.value;
+
+            try {
+            const response = await fetch(`/turmas/${itemparadeletar}/excluir/`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                password: password
+                })
+            });
+
+            if (response.ok) {
+                sms.innerText = "Professor eliminado com sucesso!";
+                sms.style.color = "green";
+                window.location.href = `http://${location.host}/turmas`
+              
+            } else {
+                const data = await response.json();
+                sms.innerText = data.error || "Erro ao deletar o item!";
+                sms.style.color = "red";
+            }
+
+            } catch (error) {
+            console.log(error);
+            sms.innerText = "Erro de conexão com o servidor.";
+            sms.style.color = "red";
+            }
+        }
+        
+        
+        document.getElementById('modalconfirmacao').onclick = (e)=>{
+            if (e.target === this) {
+                fecharmodal();
+            }
+        }
+    </script>
+</div>
+{% endblock %}
+

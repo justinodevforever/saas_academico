@@ -23,7 +23,7 @@
                 <h5 class="mb-0">
                     <i class="fas fa-user"></i> Informações da matrícula
                 </h5>
-                <a href="/lista_matricula/" class="btn" 
+                <a href="/matriculas/" class="btn" 
                 style="background: #3B82F6; color: #fff;">
                     lista
                 </a>
@@ -33,22 +33,32 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Nome do estudante:</strong></div>
-                    <div class="col-sm-9">{{ matricula.estudante.nome_completo }}</div>
+                    <div class="col-sm-9">{{ matricula.aluno.nome_completo }}</div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Data de nascimento:</strong></div>
-                    <div class="col-sm-9">{{ matricula.estudante.data_nascimento }}</div>
+                    <div class="col-sm-9">{{ matricula.aluno.data_nascimento }}</div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Idade:</strong></div>
-                    <div class="col-sm-9">{{ matricula.estudante.idade }} Anos</div>
+                    <div class="col-sm-9">{{ matricula.aluno.idade }} Anos</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Tipo da matrícula:</strong></div>
+                    <div class="col-sm-9">{{ matricula.get_tipo_matricula_display}}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Número da matrícula:</strong></div>
+                    <div class="col-sm-9">{{ matricula.numero_matricula}}</div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Status da matrícula:</strong></div>
-                    <div class="col-sm-9">{{ matricula.get_status_matricula_display}}</div>
+                    <div class="col-sm-9">{{ matricula.get_status_display}}</div>
                 </div>
 
                 <div class="row mb-3">
@@ -58,20 +68,20 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Turma:</strong></div>
-                    <div class="col-sm-9">{{ matricula.turma.turma }}</div>
+                    <div class="col-sm-9">{{ matricula.turma }}</div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Classe:</strong></div>
-                    <div class="col-sm-9">{{ matricula.turma.classe.denominacao }}</div>
+                    <div class="col-sm-9">{{ matricula.turma.classe }}</div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Ano Letivo:</strong></div>
-                    <div class="col-sm-9">{{ matricula.ano_letivo.ano }}</div>
+                    <div class="col-sm-9">{{ matricula.ano_lectivo }}</div>
                 </div>
 
-                {% if matricula.status_matricula == 'cancelada' %}
+                {% if matricula.status_matricula == 'Cancelada' %}
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Data de Cancelamento:</strong></div>
@@ -87,7 +97,7 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-3"><strong>Matrícula feita Por:</strong></div>
-                    <div class="col-sm-9">{{ matricula.criado_por.nome_completo }}</div>
+                    <div class="col-sm-9">{{ matricula.matriculado_por.get_full_name }}</div>
                 </div>
                 
             </div>

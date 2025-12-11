@@ -219,13 +219,14 @@
     </head>
     <body >
         <div style="display: flex; justify-content: center; width: 100%; height: 100%">
+
             
-            <form action="/criar_professor/" method="post" class="container-criar_professor">
+            <form action="{% url "aluno_update" aluno.id %}" method="post" class="container-criar_professor">
 
                 <div class="header d-flex justify-content-between ">
-                    <h3 class="text-warning">Cadastro de Professor</h3>
+                    <h3 class="text-warning">Atualização do estudante</h3>
                     
-                    <a href="/lista_professor/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/alunos/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -236,7 +237,7 @@
 
                     <div class="alert alert-info">
                         <span>ℹ️</span>
-                        <span>Preencha todos os campos obrigatórios para salvar informações</span>
+                        <span>Preencha todos os campos obrigatórios para salvar as alterações</span>
                     </div>
                     
                 
@@ -259,6 +260,7 @@
 
                     <div class="form-grid">
 
+                        
                         <div class="form-group">
 
                             <label for="nome_completo">
@@ -269,13 +271,106 @@
                                 </span>
                             </label>
 
-                                        
-                            <input type="text" name="nome_completo" placeholder="Nome completo" oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                           {{form.nome_completo}}
                                 
                             {% if form.nome_completo.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
                                     {{form.nome_completo.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label for="nome_pai">
+                                
+                                <span >
+                                    Filho de:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.nome_pai}}
+                                
+                            {% if form.nome_pai.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.nome_pai.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label for="nome_mae">
+                                
+                                <span >
+                                    E de:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.nome_mae}}
+                                
+                            {% if form.nome_mae.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.nome_mae.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label for="naturalidade">
+                                
+                                <span >
+                                    Natural:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.naturalidade}}
+                                
+                            {% if form.naturalidade.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.naturalidade.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label for="provincia">
+                                
+                                <span >
+                                    Província:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.provincia}}
+                                
+                            {% if form.provincia.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.provincia.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label for="municipio">
+                                
+                                <span >
+                                    Município:
+                                    <span class="text-danger">*</span>
+                                </span>
+                            </label>
+
+                           {{form.municipio}}
+                                
+                            {% if form.municipio.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.municipio.errors}}
                                 </div>
                             {% endif %}
                             
@@ -291,8 +386,7 @@
                                 </span>
                             </label>
 
-                            <input type="date"  placeholder="Data de nascimento"
-                                name="data_nascimento" id="data_nascimento">
+                            {{form.data_nascimento}}
 
                             {% if form.data_nascimento.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -305,16 +399,12 @@
                         <div class="form-group">
 
                             <label for="telefone">
-
-                                <span >
-                                    Telefone
-                                    <span class="text-danger">*</span>
-                                </span>
+                    
+                                Telefone
+                                 
                             </label>
 
-                            <input type="text" style=" width: 100%;" placeholder="Telefone"
-                             name="telefone" autocomplete="off"
-                            aria-describedby="helpId">
+                            {{form.telefone}}
 
                             {% if form.telefone.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -326,19 +416,35 @@
 
                         <div class="form-group">
 
-                            <label for="categoria">
+                            <label for="bi">
 
-                                <span >
-                                    Categoria
-                                    <span class="text-danger">*</span>
-                                </span>
+                                B.I
+                                <span class="text-danger">*</span>  
                             </label>
 
-                            {{form.categoria}}
+                            {{form.bi}}
 
-                            {% if form.categoria.errors %}
+                            {% if form.bi.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.categoria.errors}}
+                                    {{form.bi.errors}}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="data_emissao_bi">
+
+                                Data da emissão
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            {{form.data_emissao_bi}}
+
+                            {% if form.data_emissao_bi.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.data_emissao_bi.errors}}
                                 </div>
                             {% endif %}
 
@@ -354,12 +460,7 @@
                                 </span>
                     
                             </label>
-                            <select name="genero"  >
-                                <option value="">Selecione </option>
-                                <option value="M">Masculino </option>
-                                <option value="F">Feminino </option>
-                                <option value="outro">Outro </option>
-                            </select>
+                            {{form.genero}}
 
                             {% if form.genero.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -369,8 +470,47 @@
                             
                         </div>
 
+                        <div class="form-group">
+                            
+                            <label for="endereco_completo">
+
+                                <span >
+                                    Endereço completo 
+                                </span>
+                    
+                            </label>
+                            {{form.endereco_completo}}
+
+                            {% if form.endereco_completo.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.endereco_completo.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+                        <div class="form-group">
+                            
+                            <label for="bairro">
+
+                                <span >
+                                    Bairro 
+                                </span>
+                    
+                            </label>
+                            {{form.bairro}}
+
+                            {% if form.bairro.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.bairro.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
                         
                     </div>
+                    
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
 
                         <button type="submit" class="btn btn-success" style="width: 80%; ">

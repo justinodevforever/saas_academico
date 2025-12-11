@@ -25,6 +25,9 @@
             box-sizing: border-box;
         }
         
+        a{
+            text-decoration: none;
+        }
 
         :root {
             --primary-blue: #1E3A8A;
@@ -433,10 +436,15 @@
             color: var(--primary-blue);
         }
 
+        #textarea{
+            resize: none;
+            height: 50px;
+        }
+
     </style>
 </head>
 <body>
-    <!-- Topbar -->
+  
     <header class="topbar">
         <div class="topbar-left">
             <button class="menu-toggle" onclick="toggleSidebar()">
@@ -448,125 +456,128 @@
             </div>
         </div>
 
-        <div class="topbar-right">
-            
-
-            <div class="user-profile">
-                <div class="user-avatar">SA</div>
-                <div class="user-info">
-                    <div class="user-name">{{user.username}}</div>
-                    <div class="user-role">{{user.role.get_nome_display}}</div>
+        {% if request.user.is_authenticated %}
+            <div class="topbar-right">
+                
+                <div class="user-profile">
+                    <div class="user-avatar">SA</div>
+                    <div class="user-info">
+                        <div class="user-name">{{user.username}}</div>
+                        <div class="user-role">{{user.get_tipo_utilizador_display}}</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </header>
 
     <aside class="sidebar" id="sidebar">
-        <ul class="sidebar-menu">
-            <li class="menu-section">Menu Principal</li>
-            <li class="menu-item">
-                <a href="/" class="menu-link " id="dashboard">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="menu-item" >
-                <a href="/alunos/" class="menu-link" id="estudante">
-                    <i class="fas fa-user-graduate"></i>
-                    <span>Estudante</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/lista_professor/" class="menu-link" id="professor">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <span>Professores</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_disciplina/" class="menu-link" id="disciplina">
-                    <i class="fas fa-book"></i>
-                    <span>Disciplinas</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_horarios/" class="menu-link" id="horario">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Horários</span>
-                </a>
-            </li>
+        {% if request.user.is_authenticated %}
+            <ul class="sidebar-menu">
+                <li class="menu-section">Menu Principal</li>
+                <li class="menu-item">
+                    <a href="/" class="menu-link " id="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item" >
+                    <a href="/alunos/" class="menu-link" id="estudante">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Estudante</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/professores/" class="menu-link" id="professor">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Professores</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/disciplinas/" class="menu-link" id="disciplina">
+                        <i class="fas fa-book"></i>
+                        <span>Disciplinas</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/listar_horarios/" class="menu-link" id="horario">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Horários</span>
+                    </a>
+                </li>
 
-            <li class="menu-section">Gestão Acadêmica</li>
-            <li class="menu-item">
-                <a href="/matriculas/" class="menu-link" id="matricula">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Matrículas</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/reconfirmacao/" class="menu-link" id="reconfirmacao">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Reconfirmação</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_turma/" class="menu-link" id="turma">
-                    <i class="fa fa-users" aria-hidden="true"></i>
-                    <span>Turma</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/certificados/" class="menu-link" id="certificado">
-                    <i class="fa fa-users" aria-hidden="true"></i>
-                    <span>Lista de certificados</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_notas/" class="menu-link" id="nota">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Notas</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_classe/" class="menu-link" id="classe">
-                    <i class="fas fa-user-check"></i>
-                    <span>Classe</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <span href="#" class="menu-link" style="cursor: pointer;" id="relatorio-btn">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Relatórios</span>
-                </span>
+                <li class="menu-section">Gestão Acadêmica</li>
+                <li class="menu-item">
+                    <a href="/matriculas/" class="menu-link" id="matricula">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Matrículas</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/reconfirmacao/" class="menu-link" id="reconfirmacao">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Reconfirmação</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/turmas/" class="menu-link" id="turma">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <span>Turma</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/certificados/" class="menu-link" id="certificado">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <span>Lista de certificados</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/listar_notas/" class="menu-link" id="nota">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Notas</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/listar_classe/" class="menu-link" id="classe">
+                        <i class="fas fa-user-check"></i>
+                        <span>Classe</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <span href="#" class="menu-link" style="cursor: pointer;" id="relatorio-btn">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Relatórios</span>
+                    </span>
 
-                <ul id="submenu-relatorio" class="submenu">
-                    <li><a href="/relatorio/notas/">Relatório de Notas</a></li>
-                    <li><a href="/relatorio/estudantes/">Relatório de Estudantes</a></li>
-                    <li><a href="/relatorio/professores/">Relatório de Professores</a></li>
-                    <li><a href="/relatorio/turmas/">Relatório de Turmas</a></li>
-                </ul>
-            </li>
+                    <ul id="submenu-relatorio" class="submenu">
+                        <li><a href="/relatorio/notas/">Relatório de Notas</a></li>
+                        <li><a href="/relatorio/estudantes/">Relatório de Estudantes</a></li>
+                        <li><a href="/relatorio/professores/">Relatório de Professores</a></li>
+                        <li><a href="/relatorio/turmas/">Relatório de Turmas</a></li>
+                    </ul>
+                </li>
 
 
-            <li class="menu-section">Configurações</li>
-            <li class="menu-item">
-                <a href="/configuracao/" class="menu-link" id="config">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/listar_usuario/" class="menu-link" id="usuario">
-                    <i class="fas fa-users-cog"></i>
-                    <span>Usuários</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/view_logaout/?next={{ request.path }}" class="menu-link bg-danger text-white">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </a>
-            </li>
-        </ul>
+                <li class="menu-section">Configurações</li>
+                <li class="menu-item">
+                    <a href="/configuracao/" class="menu-link" id="config">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/listar_usuario/" class="menu-link" id="usuario">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Usuários</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/logout/?next={{ request.path }}" class="menu-link bg-danger text-white">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
     </aside>
 
     
@@ -694,39 +705,38 @@
         }
 
         if(
-            window.location.pathname == '/criar_turma/' ||
-            window.location.pathname.split('/')[1] == 'detalhes_turma_estudantes' ||
+            window.location.pathname == '/turmas/criar' ||
+            window.location.pathname.split('/')[1] == 'turmas' ||
             window.location.pathname.split('/')[1] == 'listar_turma_estudantes' ||
             window.location.pathname.split('/')[1] == 'visualizar_turma' ||
             window.location.pathname.split('/')[1] == 'editar_turma' ||
-            window.location.pathname == '/listar_turma/' 
+            window.location.pathname == '/turmas/' 
         ){
             turma.classList.add('active')
         }
 
         if(
-            window.location.pathname == '/criar_disciplina/' ||
-            window.location.pathname.split('/')[1] == 'editar_disciplina' ||
-            window.location.pathname.split('/')[1] == 'visualizar_disciplina' ||
+            window.location.pathname == '/disciplinas/crair/' ||
+            window.location.pathname.split('/')[1] == 'disciplinas' ||
+            window.location.pathname.split('/')[1] == 'disciplinas' ||
             window.location.pathname == '/listar_disciplina/' 
         ){
             disciplina.classList.add('active')
         }
         
         if(
-            window.location.pathname == '/criar_professor/' ||
-            window.location.pathname.split('/')[1] == 'editar_professor' ||
-            window.location.pathname.split('/')[1] == 'visualizar_professor' ||
-            window.location.pathname == '/lista_professor/' 
+            window.location.pathname == '/professores/' ||
+            window.location.pathname == '/professores/criar' ||
+            window.location.pathname.split('/')[1] == 'professores'
         ){
             professor.classList.add('active')
         }
 
         if(
-            window.location.pathname == '/lista_matricula/' ||
-            window.location.pathname == '/criar_matricula/' ||
-            window.location.pathname.split('/')[1] == 'visualizar_matricula' ||
-            window.location.pathname.split('/')[1] == 'editar_matricula' 
+            window.location.pathname == '/matriculas/' ||
+            window.location.pathname == '/matriculas/criar/' ||
+            window.location.pathname.split('/')[1] == 'matriculas' ||
+            window.location.pathname.split('/')[1] == 'matriculas' 
 
         ){
             matricula.classList.add('active')
@@ -735,7 +745,7 @@
         if(
             window.location.pathname == '/alunos/criar/' ||
             window.location.pathname == '/alunos/' ||
-            window.location.pathname.split('/')[1] == 'editar_estudante' ||
+            window.location.pathname.split('/')[1] == 'alunos' ||
             window.location.pathname.split('/')[1] == 'visualizar_estudante'
 
         ){

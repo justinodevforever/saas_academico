@@ -215,18 +215,24 @@
                 border-left: 4px solid var(--primary-blue);
                 color: var(--medium-blue);
             }
+
+            #descricao{
+                resize: none;
+                height: 50px;
+            }
+
         </style>
     </head>
     <body >
         <div style="display: flex; justify-content: center; width: 100%; height: 100%">
 
             
-            <form action="{% url "editar_disciplina" disciplina.id %}" method="post" class="container-criar_professor">
+            <form action="{% url "disciplina_edit" disciplina.id %}" method="post" class="container-criar_professor">
 
                 <div class="header d-flex justify-content-between ">
                     <h3 class="text-warning">Atualização do disciplina</h3>
                     
-                    <a href="/listar_disciplina/" class="btn btn-primary" style="width: 100px;">Listar</a>
+                    <a href="/disciplinas/" class="btn btn-primary" style="width: 100px;">Listar</a>
                 </div>
 
                 {% csrf_token %}
@@ -270,9 +276,7 @@
                                 </span>
                             </label>
 
-                            <input type="text" name="nome" placeholder="Nome da disciplina" value="{{disciplina.nome}}"
-                                oninput="this.value=this.value.toUpperCase()"
-                                aria-describedby="helpId" autocomplete="off">
+                            {{form.nome}}
                                 
                             {% if form.nome.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
@@ -284,36 +288,37 @@
 
                         <div class="form-group">
                             
-                            <label for="abreviatura">
-                                Abreviatura
+                            <label for="nome_abreviado">
+
+                                Nome abreviado
                             </label>
 
-                            <input type="text"  placeholder="Data de nascimento" value="{{disciplina.abreviatura}}"
-                                oninput="this.value=this.value.toUpperCase()"
-                                name="abreviatura" id="abreviatura">
+                            {{form.nome_abreviado}}
 
-                            {% if form.abreviatura.errors %}
+                            {% if form.nome_abreviado.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.abreviatura.errors}}
+                                    {{form.nome_abreviado.errors}}
                                 </div>
                             {% endif %}
                             
                         </div>
 
+                        
+
                         <div class="form-group">
 
-                            <label for="professor">
+                            <label for="codigo">
                                 <span>
-                                    Professor
+                                    Código
                                     <span class="text-danger">*</span>
                                 </span>
                             </label>
 
-                            {{form.professor}}
+                            {{form.codigo}}
 
-                            {% if form.professor.errors %}
+                            {% if form.codigo.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.professor.errors}}
+                                    {{form.codigo.errors}}
                                 </div>
                             {% endif %}
 
@@ -321,25 +326,44 @@
 
                         <div class="form-group">
                             
-                            <label for="professor">
+                            <label for="carga_horaria_semanal">
 
                                 <span >
-                                    Classe 
+                                    Carga Horária Semanal (horas) 
                                     <span class="text-danger">*</span>
                                 </span>
                     
                             </label>
                             
-                            {{form.classe}}
+                            {{form.carga_horaria_semanal}}
 
-                            {% if form.professor.errors %}
+                            {% if form.carga_horaria_semanal.errors %}
                                 <div class="text-danger" style="margin-bottom: -40px; ">
-                                    {{form.professor.errors}}
+                                    {{form.carga_horaria_semanal.errors}}
                                 </div>
                             {% endif %}
                             
                         </div>
 
+                        <div class="form-group">
+                            
+                            <label for="descricao">
+
+                                <span >
+                                    Descrição 
+                                </span>
+                    
+                            </label>
+                            
+                            {{form.descricao}}
+
+                            {% if form.descricao.errors %}
+                                <div class="text-danger" style="margin-bottom: -40px; ">
+                                    {{form.descricao.errors}}
+                                </div>
+                            {% endif %}
+                            
+                        </div>
                         
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">

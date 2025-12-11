@@ -396,12 +396,19 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contato</a>
                     </li>
-                    <li class="nav-item ms-3">
-                        <button class="btn btn-outline-custom">Entrar</button>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <button class="btn btn-primary-custom">Começar Grátis</button>
-                    </li>
+                    {% if not request.user.is_authenticated %}
+                        <li class="nav-item ms-3">
+                            <a href="accounts/login/" class="btn btn-outline-custom">Entrar</a>
+                        </li>
+                    {% endif %}
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item ms-3">
+                            <a href="logout/" class="btn btn-outline-danger">Sair</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <button class="btn btn-primary-custom">Começar Grátis</button>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
