@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    {% load static %}
+    {% load role_tags %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SaaS Platform - Simplifique seu negócio</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <script src="{% static 'js/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+
+    <script src="{% static 'js/jquery.main.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <script src="{% static 'js/chart.js' %}"></script>
     <style>
         :root {
             --primary-blue: #1E3A8A;
@@ -405,9 +417,27 @@
                         <li class="nav-item ms-3">
                             <a href="logout/" class="btn btn-outline-danger">Sair</a>
                         </li>
-                        <li class="nav-item ms-2">
-                            <button class="btn btn-primary-custom">Começar Grátis</button>
-                        </li>
+
+                        {% if request.user|is_admin_user %}
+
+                            <li class="nav-item ms-2">
+                                <a href="dashboard/" class="btn btn-primary-custom">Portal Administrativo</a>
+                            </li>
+                            
+                        {% elif request.user|is_director_user %}
+
+                            <li class="nav-item ms-2">
+                                <a href="dashboard/" class="btn btn-primary-custom">Minha Área de Trabalho</a>
+                            </li>
+
+                        {% else %}
+
+                            <li class="nav-item ms-2">
+                                <button class="btn btn-primary-custom">Começar Grátis</button>
+                            </li>
+
+                        {% endif %}
+
                     {% endif %}
                 </ul>
             </div>

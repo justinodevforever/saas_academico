@@ -1,0 +1,217 @@
+{% extends 'director/base.html' %}
+
+{% block breadcrumb %}
+    <a href="{% url 'funcionario_list' %}">Funcionários</a>
+    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    <spn class="current">{{funcionario.nome_completo}}</spn>
+{% endblock breadcrumb %}
+
+{% block title %}
+    Funcionário | {{funcionario.get_tipo_funcionario_display}}
+{% endblock title %}
+    
+{% block sub_title %}
+    Informações mais detalhadas do Funcionário
+{% endblock sub_title %}
+
+{% block icon %}
+    <i class="fa fa-eye" aria-hidden="true"></i>
+{% endblock icon %}
+
+{% block topbar_actions %}
+    <a onclick="history.back()" class="btn btn-primary" style="width: 100px;"> <i class="fa fa-arrow-left" aria-hidden="true"></i> voltar</a>
+{% endblock topbar_actions %}
+
+{% block content %}
+
+<style>
+    table{
+        width: 99%;
+    }
+    th{
+        padding: 4px;
+    }
+    td{
+        padding: 4px;
+    }
+
+    .container-grid{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    @media (max-width: 700px) {
+        .container-grid{
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card{
+        padding: 10px;
+        font-size: 10pt;
+
+    }
+
+    .card-info{
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+    .card-info::before{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 6px;
+        background: blue;
+    }
+</style>
+<div class="container-fluid">
+    <div class="container-grid">
+        
+        <div class="card card-info">
+
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Nome Completo:</strong></div>
+                <div class="col-sm-6">{{ funcionario.nome_completo }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Número de B.I:</strong></div>
+                <div class="col-sm-6">{{ funcionario.bi }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Data de nascimento:</strong></div>
+                <div class="col-sm-6">{{ funcionario.data_nascimento }}</div>
+            </div>
+             <div class="row mb-3">
+                <div class="col-sm-6"><strong>Idade:</strong></div>
+                <div class="col-sm-6">{{ funcionario.idade }} Anos</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Género:</strong></div>
+                <div class="col-sm-6">{{ funcionario.get_genero_display}}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Telefone:</strong></div>
+                <div class="col-sm-6">{{ funcionario.telefone }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Email:</strong></div>
+                <div class="col-sm-6">{{ funcionario.email }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-6"><strong>Endereço:</strong></div>
+                <div class="col-sm-6">{{ funcionario.endereco|default:"Sem Informações" }}</div>
+            </div>  
+        </div>
+
+        <div class="card card-info">
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Tipo de contrato:</strong></div>
+                <div class="col-sm-7">{{ funcionario.get_tipo_contrato_display|default:"Sem Informações" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Especialidade:</strong></div>
+                <div class="col-sm-7">{{ funcionario.especialidade }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Número de agente:</strong></div>
+                <div class="col-sm-7">{{ funcionario.numero_agente }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Nível acadêmico:</strong></div>
+                <div class="col-sm-7">{{ funcionario.get_nivel_academico_display }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Instituição de formação:</strong></div>
+                <div class="col-sm-7">{{ funcionario.instituicao_formacao|default:"Sem Informações" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Anos de experiências:</strong></div>
+                <div class="col-sm-7">{{ funcionario.anos_experiencia|default:"Sem Informações" }}</div>
+            </div>   
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Carga horária semanal:</strong></div>
+                <div class="col-sm-7">{{ funcionario.carga_horaria_semanal|default:"Sem Informações" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-5"><strong>Status:</strong></div>
+                <div class="col-sm-7">{{ funcionario.get_status_display|default:"Sem Informações" }}</div>
+            </div>
+         
+        </div>
+    </div>
+
+    
+    {% if funcionario.tipo_funcionario == 'Professor' %}
+    
+        <div class="card mt-2">
+
+            <h6>As turmas que este professor está associado</h6>
+
+            {% for turma in turmas %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>turma:</strong></div>
+                    <div class="col-sm-9">{{ turma.turma}}</div>
+                </div>
+                
+            {%empty%}
+                <div colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <br>Nenhuma turma vinculada a este professor.
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card mt-2">
+
+            <h6>disciplina do Professores</h6>
+
+            {% for disc in disciplinas %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Nome:</strong></div>
+                    <div class="col-sm-9">{{ disc.disciplina.nome}}</div>
+                </div>
+            {%empty%}
+                    <div colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <br>Nenhuma disciplina vinculada a este professor.
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card mt-2">
+            <h6>Horário do professores</h6>
+            {% for h in horario %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Turma:</strong></div>
+                    <div class="col-sm-9">{{ h.turma}}</div> 
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Disciplina:</strong></div>
+                    <div class="col-sm-9">{{ h.disciplina}}</div> 
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Dia da semana:</strong></div>
+                    <div class="col-sm-9">{{ h.get_dia_semana_display}}</div> 
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Hora início/ Hora Fim:</strong></div>
+                    <div class="col-sm-9">{{ h.hora_inicio}} / {{h.hora_fim}}</div> 
+                </div>
+                <hr>
+            {%empty%}
+                    <div colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <br>Nenhum horário vinculado a este professor.
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endif %}
+   
+</div>
+{% endblock %}
+

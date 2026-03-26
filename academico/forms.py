@@ -4,12 +4,12 @@ from .models import *
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from datetime import date
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 import string, secrets
 
 from django.shortcuts import get_list_or_404
 
-from authenticate.models import Utilizador
 from .models import *
 
 class ProfessorForm(forms.Form):
@@ -26,7 +26,7 @@ class ProfessorForm(forms.Form):
         widget= forms.DateInput(attrs={'type': 'date'})
     )
     genero = forms.ChoiceField(
-        choices= Professor.GENERO,
+        choices= PessoaMixin.Genero.choices,
         required=True,
         widget= forms.Select()
     )
@@ -63,7 +63,7 @@ class ProfessorForm(forms.Form):
     )
     nivel_academico = forms.ChoiceField(
         required=True,
-        choices=Professor.NIVEL_ACADEMICO,
+        choices=PessoaMixin.NivelAcademico.choices,
         widget= forms.Select()
     )
     instituicao_formacao = forms.CharField(
@@ -98,7 +98,7 @@ class ProfessorForm(forms.Form):
     )
     tipo_contrato = forms.ChoiceField(
         required=False,
-        choices=Professor.TIPO_CONTRATO,
+        choices=Funcionario.TipoContrato.choices,
         widget=forms.Select()
     )
     carga_horaria_semanal = forms.IntegerField(
@@ -146,7 +146,7 @@ class ProfessorEditForm(forms.Form):
         widget= forms.DateInput(attrs={'type': 'date'})
     )
     genero = forms.ChoiceField(
-        choices= Professor.GENERO,
+        choices= PessoaMixin.Genero.choices,
         required=True,
         widget= forms.Select()
     )
@@ -183,7 +183,7 @@ class ProfessorEditForm(forms.Form):
     )
     nivel_academico = forms.ChoiceField(
         required=True,
-        choices=Professor.NIVEL_ACADEMICO,
+        choices=PessoaMixin.NivelAcademico.choices,
         widget= forms.Select()
     )
     instituicao_formacao = forms.CharField(
@@ -218,7 +218,7 @@ class ProfessorEditForm(forms.Form):
     )
     tipo_contrato = forms.ChoiceField(
         required=False,
-        choices=Professor.TIPO_CONTRATO,
+        choices=Funcionario.TipoContrato.choices,
         widget=forms.Select()
     )
     carga_horaria_semanal = forms.IntegerField(
@@ -303,7 +303,7 @@ class AlunoForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
-    genero = forms.ChoiceField(choices=Aluno.GENERO)
+    genero = forms.ChoiceField(choices=PessoaMixin.Genero.choices)
     provincia = forms.CharField(
         max_length=50, 
         required=True,
@@ -364,6 +364,111 @@ class AlunoForm(forms.Form):
 
         return aluno
     
+class EncarregadoForm(forms.Form):
+
+    nome_completo = forms.CharField(
+        required=True,
+        max_length=200,
+        widget=forms.TextInput(attrs={'oninput': 'this.value=this.value.toUpperCase()', 'placeholder': 'Nome completo'})
+    )
+    parentesco = forms.ChoiceField(
+        choices=EncarregadoEducacao.Parentesco.choices,
+        required=True,
+        widget=forms.Select()
+    )
+    profissao = forms.CharField(
+        required=False,
+        max_length=200,
+        widget=forms.TextInput(attrs={'oninput': 'this.value=this.value.toUpperCase()', 'placeholder': 'Profissão'})
+    )
+    local_trabalho = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'oninput': 'this.value=this.value.toUpperCase()', 'placeholder': 'Local de trabalho'})
+    )
+  
+    bi = forms.CharField(
+        max_length=14, 
+        required=True,
+        widget=forms.TextInput(attrs={'oninput': 'this.value=this.value.toUpperCase()', 'placeholder': 'B.I'})
+    )
+   
+    genero = forms.ChoiceField(choices=PessoaMixin.Genero.choices)
+    
+    telefone_alternativo = forms.CharField(
+        max_length=9, 
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Telefone Alternativo', 'id': 'telefone_alternativo'})
+    )
+
+    telefone_principal = forms.CharField(
+        max_length=9, 
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Telefone Principal', 'id': 'telefone_principal'})
+    )
+
+    def __init__(self, *args,encarregado=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.encarregado =  encarregado
+        
+        if self.encarregado:
+            self.fields['nome_completo'].initial = self.encarregado.nome_completo
+            self.fields['parentesco'].initial = self.encarregado.parentesco
+            self.fields['profissao'].initial = self.encarregado.profissao
+            self.fields['local_trabalho'].initial = self.encarregado.local_trabalho
+            self.fields['telefone_alternativo'].initial = self.encarregado.telefone_alternativo
+            self.fields['telefone_principal'].initial = self.encarregado.telefone_principal
+            self.fields['genero'].initial = self.encarregado.genero
+            self.fields['bi'].initial = self.encarregado.bi
+
+    def clean(self):
+        clean_data =  super().clean()
+
+        telefone_alternativo=self.cleaned_data['telefone_alternativo']
+        
+        if telefone_alternativo:
+            telefone_validade = int(telefone_alternativo[0])
+
+            if telefone_validade != 9:
+                self.add_error('telefone_alternativo', 'Número de telefone inválido!')
+
+        telefone_principal=self.cleaned_data['telefone_principal']
+        
+        if telefone_principal:
+            telefone_validade = int(telefone_principal[0])
+
+            if telefone_validade != 9:
+                self.add_error('telefone_principal', 'Número de telefone inválido!')
+
+        return clean_data
+
+    def save(self):
+
+        if self.encarregado is None:
+            encarregado = EncarregadoEducacao(
+                nome_completo=self.cleaned_data['nome_completo'],
+                parentesco=self.cleaned_data['parentesco'],
+                profissao=self.cleaned_data['profissao'],
+                local_trabalho=self.cleaned_data['local_trabalho'],
+                telefone_alternativo=self.cleaned_data['telefone_alternativo'],
+                bi=self.cleaned_data['bi'],
+                telefone_principal=self.cleaned_data['telefone_principal'],
+                genero=self.cleaned_data['genero'],
+            )
+
+            return encarregado
+        
+        else:
+            self.encarregado.nome_completo=self.cleaned_data['nome_completo']
+            self.encarregado.parentesco=self.cleaned_data['parentesco']
+            self.encarregado.profissao=self.cleaned_data['profissao']
+            self.encarregado.local_trabalho=self.cleaned_data['local_trabalho']
+            self.encarregado.telefone_alternativo=self.cleaned_data['telefone_alternativo']
+            self.encarregado.bi=self.cleaned_data['bi']
+            self.encarregado.telefone_principal=self.cleaned_data['telefone_principal']
+            self.encarregado.genero=self.cleaned_data['genero']
+
+            return self.encarregado
+    
 class AlunoEditForm(forms.Form):
 
     nome_completo = forms.CharField(
@@ -399,7 +504,7 @@ class AlunoEditForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
-    genero = forms.ChoiceField(choices=Aluno.GENERO)
+    genero = forms.ChoiceField(choices=PessoaMixin.Genero.choices)
     provincia = forms.CharField(
         max_length=50, 
         required=True,
@@ -479,40 +584,8 @@ class AlunoEditForm(forms.Form):
         return self.aluno
 
 
-class MatriculaForm(forms.Form):
+class InscricaoForm(forms.Form):
 
-    STATUS = [
-        ('ativa', 'Ativa'),
-        ('finalizada', 'Finalizada'),
-    ]
-
-    turma = forms.ModelChoiceField(
-        queryset=Turma.objects.none(),
-        label="Turma",
-        widget=forms.Select(attrs={
-            'required': True
-        })
-    )
-
-    tipo_matricula = forms.ChoiceField(
-        choices=Matricula.TIPO_MATRICULA,
-        label="Tipo de Matrícula",
-        widget=forms.Select(attrs={
-            'required': True,
-            'id': 'tipo_matricula'
-        })
-    )
-
-    escola_origem = forms.CharField(
-        max_length=200,
-        required=False,
-        label="Escola de Origem",
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Apenas para transferências',
-            'id': 'escola_origem'
-        })
-    )
-    
     documentos_entregues = forms.MultipleChoiceField(
         choices=[
             ('BI', 'Bilhete de Identidade'),
@@ -528,7 +601,12 @@ class MatriculaForm(forms.Form):
             'class': 'form-check-input d-inline-block'
         })
     )
-
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.none(),
+        required=True,
+        widget=forms.Select()
+    )
+    
     nome_completo = forms.CharField(
         required=True,
         max_length=200,
@@ -562,7 +640,7 @@ class MatriculaForm(forms.Form):
         required=True,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
-    genero = forms.ChoiceField(choices=Aluno.GENERO)
+    genero = forms.ChoiceField(choices=PessoaMixin.Genero.choices)
     provincia = forms.CharField(
         max_length=50, 
         required=True,
@@ -591,36 +669,25 @@ class MatriculaForm(forms.Form):
         self.escola = escola
 
         if escola:
-           
             
-            self.fields['ano_lectivo'].queryset = AnoLectivo.objects.filter(
-                escola=escola
-            ).order_by('-activo', '-data_inicio')
+            self.fields['curso'].queryset = Curso.objects.filter(escola=escola)
             
-            self.fields['turma'].queryset = Turma.objects.filter(
-                escola=escola,
-                activo=True
-            ).select_related('curso', 'classe').order_by('classe__ordem', 'designacao')
+        #     self.fields['turma'].queryset = Turma.objects.filter(
+        #         escola=escola,
+        #         activo=True
+        #     ).select_related('curso', 'classe').order_by('classe__ordem', 'designacao')
 
     def clean(self):
 
         cleaned_data = super().clean()
 
-        aluno = cleaned_data.get('aluno')
+        bi = cleaned_data.get('bi')
         ano_lectivo = cleaned_data.get('ano_lectivo')
-        turma = cleaned_data.get('turma')
-        tipo_matricula = cleaned_data.get('tipo_matricula')
-        escola_origem = cleaned_data.get('escola_origem')
 
-        if aluno and ano_lectivo:
-            if Matricula.objects.filter(aluno=aluno, ano_lectivo=ano_lectivo).exists():
+        if bi and ano_lectivo:
+            if Inscricao.objects.filter(aluno__bi=bi, ano_lectivo=ano_lectivo).exists():
                 return self.add_error('ano_lectivo','Este aluno já possui matrícula neste ano lectivo.')
 
-        if turma and turma.vagas_disponiveis <= 0:
-            return self.add_error('turma',f'A turma {turma.designacao} não possui vagas disponíveis.')
-
-        if tipo_matricula == 'Transferência' and not escola_origem:
-            return self.add_error('tipo_matricula','Para transferências, é obrigatório informar a escola de origem.')
 
         return cleaned_data
     
@@ -646,15 +713,12 @@ class MatriculaForm(forms.Form):
             )
 
 
-            matricula = Matricula(
-                turma = self.cleaned_data['turma'],
-                ano_lectivo = self.cleaned_data['ano_lectivo'],
-                tipo_matricula = ano_letivo,
-                escola_origem = self.cleaned_data['escola_origem'],
-                documentos_entregues = self.cleaned_data['documentos_entregues'],
+            inscricao = Inscricao(
+                ano_lectivo = ano_letivo,
+                curso = self.cleaned_data['curso'],
             )
 
-            return matricula, aluno
+            return inscricao, aluno
         
         except AnoLectivo.DoesNotExist:
             raise ValidationError('Erro ao matricular o estudante')
@@ -670,7 +734,7 @@ class MatriculaEditForm(forms.Form):
     )
 
     tipo_matricula = forms.ChoiceField(
-        choices=Matricula.TIPO_MATRICULA,
+        choices=Matricula.TipoMatricula.choices,
         label="Tipo de Matrícula",
         widget=forms.Select(attrs={
             'required': True,
@@ -737,7 +801,7 @@ class MatriculaEditForm(forms.Form):
         required=True,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
-    genero = forms.ChoiceField(choices=Aluno.GENERO)
+    genero = forms.ChoiceField(choices=PessoaMixin.Genero.choices)
     provincia = forms.CharField(
         max_length=50, 
         required=True,
@@ -969,9 +1033,17 @@ class ResultadoForm(forms.Form):
 
 class ClasseForm(forms.Form):
     
-    denominacao = forms.CharField(
+    designacao = forms.CharField(
+        required=True,
+        widget= forms.TextInput(attrs={'id': 'designacao', 'placeholder': 'Ex.: 10ª classe'})
+    )
+    numero = forms.IntegerField(
         required=False,
-        widget= forms.TextInput(attrs={'id': 'denominacao', 'placeholder': 'Nome da classe'})
+        widget= forms.NumberInput(attrs={'id': 'designacao', 'placeholder': 'Ex.: 10'})
+    )
+    ordem = forms.IntegerField(
+        required=False,
+        widget= forms.NumberInput(attrs={'id': 'ordem', 'placeholder': 'ex.: 2'})
     )
 
 
@@ -982,8 +1054,29 @@ class ClasseForm(forms.Form):
 
         if self.classe:
 
-            self.fields['denominacao'].initial = self.classe.denominacao
+            self.fields['designacao'].initial = self.classe.designacao
+            self.fields['numero'].initial = self.classe.numero
+            self.fields['ordem'].initial = self.classe.ordem
 
+    def clean(self):
+        self.cleaned_data = super().clean()
+
+        classe = self.cleaned_data['designacao']
+        classe = classe.strip()
+        try:
+
+            if classe:
+
+                if classe.split(' ')[0].endswith('ª') == False:
+                    return self.add_error('designacao', 'Falta caracter ( ª ) ! Ex.: 10ª classe')
+            
+                if classe.split(' ')[1] != 'classe' :
+                    self.add_error('designacao', 'Falta palavra (classe)! Ex.: 10ª classe')
+
+        except IndexError:
+            self.add_error('designacao', 'Falta palavra ( classe )! Ex.: 10ª classe')
+
+        return self.cleaned_data
 
     def save(self):
 
@@ -991,38 +1084,116 @@ class ClasseForm(forms.Form):
             
 
             classe = Classe(
-                denominacao = self.cleaned_data['denominacao'],
+                designacao = self.cleaned_data['designacao'],
+                numero = self.cleaned_data['numero'],
+                ordem = self.cleaned_data['ordem'],
             )
-
-
-
-            classe.save()
 
             return classe
         
         else:
 
-            self.classe.denominacao = self.cleaned_data['denominacao']
+            self.classe.designacao = self.cleaned_data['designacao']
+            self.classe.numero = self.cleaned_data['numero']
+            self.classe.ordem = self.cleaned_data['ordem']
 
             return self.classe
+        
+class CursoForm(forms.Form):
+    
+    nome = forms.CharField(
+        required=True,
+        widget= forms.TextInput(attrs={
+            'id': 'designacao',
+            'oninput': 'this.value=this.value.toUpperCase()', 
+            'placeholder': 'Nome do curso'
+            })
+    )
+
+    codigo = forms.CharField(
+        required=False,
+        widget= forms.TextInput(attrs={
+            'id': 'designacao', 
+            'placeholder': 'Código do curso'
+        })
+    )
+
+    nome_abreviado = forms.CharField(
+        required=False,
+        widget= forms.TextInput(attrs={
+            'id': 'nome_abreviado',
+            'placeholder': 'Abreviatura do curso',
+            'oninput': 'this.value=this.value.toUpperCase()',
+        })
+    )
+
+    descricao = forms.CharField(
+        required=False,
+        widget= forms.Textarea(attrs={'id': 'descricao', 'placeholder': 'Descrição'})
+    )
+
+    duracao_anos = forms.IntegerField(
+        required=True,
+        widget= forms.NumberInput(attrs={'id': 'duracao_anos', 'placeholder': 'Ex.: 3'})
+    )
+
+
+    def __init__(self, *args, **kwargs):
+        self.curso = kwargs.pop('instance', None)
+
+        super().__init__(*args, **kwargs)
+
+        if self.curso:
+
+            self.fields['nome'].initial = self.curso.nome
+            self.fields['codigo'].initial = self.curso.codigo
+            self.fields['nome_abreviado'].initial = self.curso.nome_abreviado
+            self.fields['descricao'].initial = self.curso.descricao
+            self.fields['duracao_anos'].initial = self.curso.duracao_anos
+
+
+    def save(self):
+
+        if self.curso is None:
+            
+
+            curso = Curso(
+                nome = self.cleaned_data['nome'],
+                codigo = self.cleaned_data['codigo'],
+                nome_abreviado = self.cleaned_data['nome_abreviado'],
+                descricao = self.cleaned_data['descricao'],
+                duracao_anos = self.cleaned_data['duracao_anos'],
+            )
+
+            return curso
+        
+        else:
+
+            self.curso.nome = self.cleaned_data['nome']
+            self.curso.codigo = self.cleaned_data['codigo']
+            self.curso.nome_abreviado = self.cleaned_data['nome_abreviado']
+            self.curso.descricao = self.cleaned_data['descricao']
+            self.curso.duracao_anos = self.cleaned_data['duracao_anos']
+
+            return self.curso
 
 class AnoLetivoForm(forms.Form):
 
-    ano = forms.CharField(
+    designacao = forms.CharField(
         required=True, 
-        widget= forms.TextInput(attrs={'id': 'ano'})
+        widget= forms.TextInput(attrs={'id': 'ano', 'placeholder': 'Ex.: 2024/2025'})
     )
-    dataFim = forms.DateField(
+    data_inicio = forms.DateField(
         required=True, 
-        widget= forms.DateInput(attrs={'id': 'dataFim'})
+        widget= forms.DateInput(attrs={'id': 'data_inicio', 'type': 'date'})
     )
-    dataInicio = forms.DateField(
+    data_fim = forms.DateField(
         required=True, 
-        widget= forms.DateInput()
+        widget= forms.DateInput(attrs={'id': 'data_fim', 'type': 'date'})
     )
-    e_atual = forms.BooleanField(
+    activo = forms.BooleanField(
         required=False, 
-        widget= forms.CheckboxInput(attrs={'id': 'e_atual'})
+        widget= forms.CheckboxInput(attrs={'id': 'activo'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -1032,10 +1203,10 @@ class AnoLetivoForm(forms.Form):
 
         if self.ano_letivo:
 
-            self.fields['ano'].initial = self.ano_letivo.ano
-            self.fields['e_atual'].initial = self.ano_letivo.e_atual
-            self.fields['dataInicio'].initial = self.ano_letivo.dataInicio
-            self.fields['dataFim'].initial = self.ano_letivo.dataFim
+            self.fields['designacao'].initial = self.ano_letivo.designacao
+            self.fields['activo'].initial = self.ano_letivo.activo
+            self.fields['data_fim'].initial = self.ano_letivo.data_fim
+            self.fields['data_inicio'].initial = self.ano_letivo.data_inicio
 
 
     def save(self):
@@ -1043,25 +1214,22 @@ class AnoLetivoForm(forms.Form):
         if self.ano_letivo is None:
 
             ano_letivo = AnoLectivo(
-                ano = self.cleaned_data['ano'],
-                dataFim = self.cleaned_data['dataFim'],
-                dataInicio = self.cleaned_data['dataInicio'],
-                e_atual = self.cleaned_data['e_atual'],
+                designacao = self.cleaned_data['designacao'],
+                data_inicio = self.cleaned_data['data_inicio'],
+                data_fim = self.cleaned_data['data_fim'],
+                activo = self.cleaned_data['activo'],
             )
-
-            ano_letivo.save()
 
             return ano_letivo
         
         else:
 
-            self.ano_letivo.ano = self.cleaned_data['ano']
-            self.ano_letivo.dataFim = self.cleaned_data['dataFim']
-            self.ano_letivo.dataInicio = self.cleaned_data['dataInicio']
-            self.ano_letivo.e_atual = self.cleaned_data['e_atual']
+            self.ano_letivo.designacao = self.cleaned_data['designacao']
+            self.ano_letivo.data_inicio = self.cleaned_data['data_inicio']
+            self.ano_letivo.data_fim = self.cleaned_data['data_fim']
+            self.ano_letivo.activo = self.cleaned_data['activo']
 
             self.ano_letivo.save()
-
 
             return self.ano_letivo
 
@@ -1070,10 +1238,10 @@ class HorarioAulaForm(forms.Form):
 
     turma = forms.ModelChoiceField(queryset=Turma.objects.all(), label="Turma")
     disciplina = forms.ModelChoiceField(queryset=Disciplina.objects.all(), label="Disciplina")
-    professor = forms.ModelChoiceField(queryset=Professor.objects.all(), label="Professor")
+    professor = forms.ModelChoiceField(queryset=Funcionario.objects.all(), label="Professor")
     ano_letivo = forms.ModelChoiceField(queryset=AnoLectivo.objects.all(), label="Ano lectivo")
     dia_semana = forms.ChoiceField(
-        choices=HorarioAula.DIA_SEMANA,
+        choices=HorarioAula.DiaSemana.choices,
         label="Dia da Semana"
     )
     hora_inicio = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label="Hora Início")
@@ -1193,11 +1361,7 @@ class TurmaForm(forms.Form):
             'placeholder': 'Ex: Sala 101'
         })
     )
-    turno = forms.ChoiceField(
-        choices=Turma.TURNO,
-        required=True,
-        widget=forms.Select()
-    )
+ 
     capacidade_maxima = forms.IntegerField(
         min_value=1,
         max_value=100,
@@ -1213,7 +1377,7 @@ class TurmaForm(forms.Form):
         widget=forms.NumberInput()
     )
     director_turma = forms.ModelChoiceField(
-        queryset=Professor.objects.none(),
+        queryset=Funcionario.objects.none(),
         required=False,
         widget=forms.Select()
     )
@@ -1312,11 +1476,7 @@ class TurmaEditForm(forms.Form):
             'placeholder': 'Ex: Sala 101'
         })
     )
-    turno = forms.ChoiceField(
-        choices=Turma.TURNO,
-        required=True,
-        widget=forms.Select()
-    )
+
     capacidade_maxima = forms.IntegerField(
         min_value=1,
         max_value=100,
@@ -1332,7 +1492,7 @@ class TurmaEditForm(forms.Form):
         widget=forms.NumberInput()
     )
     director_turma = forms.ModelChoiceField(
-        queryset=Professor.objects.none(),
+        queryset=Funcionario.objects.none(),
         required=False,
         widget=forms.Select()
     )

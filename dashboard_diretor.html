@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portal do Director — {{ escola.nome|default:"Escola" }}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg:          #f4f6fb;
+      --bg-card:     #ffffff;
+      --bg-sidebar:  #0f1f3d;
+      --bg-sidebar-hover: #1a3157;
+      --accent:      #1d4ed8;
+      --accent-2:    #0891b2;
+      --accent-3:    #7c3aed;
+      --accent-4:    #059669;
+      --accent-warn: #d97706;
+      --accent-danger:#dc2626;
+      --text-main:   #0f172a;
+      --text-sub:    #475569;
+      --text-muted:  #94a3b8;
+      --border:      #e2e8f0;
+      --sidebar-w:   270px;
+      --radius:      14px;
+      --shadow:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-lg:   0 8px 40px rgba(15,31,61,.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    h1,h2,h3,h4,h5,.display { font-family: 'Playfair Display', serif; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: var(--bg-sidebar);
+      display: flex; flex-direction: column;
+      z-index: 1000;
+      box-shadow: 4px 0 24px rgba(15,31,61,.15);
+      transition: transform .3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 28px 22px 22px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .brand-row { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg,#3b82f6,#1d4ed8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(29,78,216,.4);
+    }
+    .brand-name { font-family:'Playfair Display',serif; color:#fff; font-size:1rem; font-weight:700; line-height:1.2; }
+    .brand-tag  { font-size:.67rem; color: rgba(255,255,255,.4); margin-top:3px; letter-spacing:.04em; text-transform:uppercase; }
+
+    .school-pill {
+      margin-top: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: 8px 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .school-pill i { color: #60a5fa; font-size: .85rem; }
+    .school-pill span { color: rgba(255,255,255,.75); font-size: .78rem; font-weight: 500; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 14px; }
+
+    .nav-label {
+      font-size: .63rem; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      padding: 14px 8px 6px; font-weight: 700;
+    }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: rgba(255,255,255,.55); font-size: .84rem; font-weight: 500;
+      text-decoration: none; transition: all .18s; margin-bottom: 2px;
+    }
+    .nav-link i { font-size: 1rem; width: 18px; flex-shrink: 0; }
+    .nav-link:hover { background: var(--bg-sidebar-hover); color: #fff; }
+    .nav-link.active {
+      background: rgba(59,130,246,.2);
+      color: #93c5fd;
+      font-weight: 600;
+    }
+    .nav-link.active i { color: #60a5fa; }
+
+    .nav-count {
+      margin-left: auto; background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.5); font-size: .65rem;
+      padding: 2px 8px; border-radius: 99px; font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      cursor: pointer; transition: background .18s;
+    }
+    .user-card:hover { background: rgba(255,255,255,.1); }
+    .user-av {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg,#3b82f6,#7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .8rem; color: #fff; flex-shrink: 0;
+    }
+    .user-name  { font-size: .82rem; font-weight: 600; color: #fff; }
+    .user-cargo { font-size: .7rem; color: rgba(255,255,255,.4); }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: var(--sidebar-w); right: 0;
+      height: 66px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 30px; gap: 16px;
+      z-index: 900; box-shadow: var(--shadow);
+    }
+
+    .topbar-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--text-main); }
+
+    .topbar-search {
+      flex: 1; max-width: 380px; margin-left: 24px; position: relative;
+    }
+    .topbar-search input {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text-main); padding: 9px 14px 9px 40px;
+      font-size: .84rem; outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .topbar-search input::placeholder { color: var(--text-muted); }
+    .topbar-search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29,78,216,.1);
+    }
+    .topbar-search i {
+      position: absolute; left: 13px; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+    }
+
+    .topbar-actions { margin-left: auto; display:flex; align-items:center; gap:8px; }
+
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-sub); cursor: pointer; transition: all .18s;
+      position: relative; font-size: .95rem;
+    }
+    .icon-btn:hover { background: #e8edf5; color: var(--accent); border-color: #c7d2e8; }
+    .notif-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-danger); border: 2px solid #fff;
+    }
+
+    /* ── MAIN ── */
+    .main-content { margin-left: var(--sidebar-w); padding-top: 66px; min-height: 100vh; }
+    .page-body    { padding: 30px; }
+
+    /* ── WELCOME BANNER ── */
+    .welcome-banner {
+      background: linear-gradient(135deg, #0f1f3d 0%, #1d3f7a 60%, #1e40af 100%);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      color: #fff;
+      position: relative; overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-lg);
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: rgba(59,130,246,.15);
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute; bottom: -60px; right: 80px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: rgba(124,58,237,.12);
+    }
+    .wb-greeting { font-size: .85rem; color: rgba(255,255,255,.6); margin-bottom: 4px; }
+    .wb-name     { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; margin-bottom: 6px; }
+    .wb-sub      { font-size: .82rem; color: rgba(255,255,255,.55); }
+    .wb-badges   { display:flex; gap:10px; flex-wrap:wrap; margin-top: 18px; }
+    .wb-badge {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: .78rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .wb-badge i { opacity: .8; }
+    .wb-icon-lg {
+      position: absolute; right: 32px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem; opacity: .06; z-index: 0;
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      transition: transform .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+    .stat-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .sc-blue::after   { background: linear-gradient(90deg,#1d4ed8,#3b82f6); }
+    .sc-cyan::after   { background: linear-gradient(90deg,#0891b2,#22d3ee); }
+    .sc-purple::after { background: linear-gradient(90deg,#7c3aed,#a78bfa); }
+    .sc-green::after  { background: linear-gradient(90deg,#059669,#34d399); }
+    .sc-warn::after   { background: linear-gradient(90deg,#d97706,#fbbf24); }
+
+    .stat-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; margin-bottom: 18px;
+    }
+    .sc-blue   .stat-icon { background:#dbeafe; color:#1d4ed8; }
+    .sc-cyan   .stat-icon { background:#cffafe; color:#0891b2; }
+    .sc-purple .stat-icon { background:#ede9fe; color:#7c3aed; }
+    .sc-green  .stat-icon { background:#d1fae5; color:#059669; }
+    .sc-warn   .stat-icon { background:#fef3c7; color:#d97706; }
+
+    .stat-value {
+      font-family: 'Playfair Display',serif;
+      font-size: 2.1rem; font-weight: 800;
+      color: var(--text-main); line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label { font-size: .8rem; color: var(--text-sub); font-weight: 500; }
+    .stat-trend {
+      position: absolute; top: 20px; right: 20px;
+      font-size: .72rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 99px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .trend-up   { background:#d1fae5; color:#059669; }
+    .trend-down { background:#fee2e2; color:#dc2626; }
+    .trend-neu  { background:#f1f5f9; color:#64748b; }
+
+    /* ── SECTION HEADER ── */
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .section-title  { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--text-main); }
+
+    /* ── CHART CARD ── */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    .chart-card canvas { max-height: 220px; }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .card-hdr {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    table.dt {
+      width: 100%; border-collapse: collapse; font-size: .84rem;
+    }
+    .dt thead th {
+      padding: 11px 16px;
+      color: var(--text-muted); font-size: .7rem;
+      text-transform: uppercase; letter-spacing: .07em; font-weight: 700;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .dt tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .15s; }
+    .dt tbody tr:last-child { border-bottom: none; }
+    .dt tbody tr:hover { background: #f8fafc; }
+    .dt tbody td { padding: 13px 16px; }
+
+    /* ── BADGES ── */
+    .tag {
+      font-size: .68rem; padding: 3px 10px;
+      border-radius: 99px; font-weight: 600;
+      display: inline-block; white-space: nowrap;
+    }
+    .tag-green  { background:#d1fae5; color:#065f46; }
+    .tag-red    { background:#fee2e2; color:#991b1b; }
+    .tag-yellow { background:#fef3c7; color:#92400e; }
+    .tag-blue   { background:#dbeafe; color:#1e40af; }
+    .tag-purple { background:#ede9fe; color:#5b21b6; }
+    .tag-gray   { background:#f1f5f9; color:#475569; }
+
+    /* ── MINI LIST ── */
+    .mli {
+      display:flex; align-items:center; gap:12px;
+      padding: 13px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .15s;
+    }
+    .mli:last-child { border-bottom: none; }
+    .mli:hover { background: #f8fafc; }
+    .mli-av {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; flex-shrink: 0;
+    }
+    .mli-name { font-size: .85rem; font-weight: 600; }
+    .mli-sub  { font-size: .74rem; color: var(--text-muted); margin-top: 1px; }
+    .mli-meta { margin-left: auto; text-align: right; }
+    .mli-date { font-size: .72rem; color: var(--text-muted); }
+
+    /* ── ALERT STRIP ── */
+    .alert-strip {
+      border-radius: 10px; padding: 14px 18px;
+      display: flex; align-items: flex-start; gap: 12px;
+      border-left: 4px solid;
+      margin-bottom: 10px;
+    }
+    .as-warn   { background:#fffbeb; border-color:#f59e0b; }
+    .as-danger { background:#fef2f2; border-color:#ef4444; }
+    .as-info   { background:#eff6ff; border-color:#3b82f6; }
+    .as-icon   { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+    .as-warn   .as-icon { color: #d97706; }
+    .as-danger .as-icon { color: #dc2626; }
+    .as-info   .as-icon { color: #2563eb; }
+    .as-title  { font-size: .84rem; font-weight: 600; }
+    .as-sub    { font-size: .76rem; color: var(--text-sub); margin-top: 2px; }
+
+    /* ── PROGRESS ── */
+    .prog-row { margin-bottom: 14px; }
+    .prog-hdr { display:flex; justify-content:space-between; margin-bottom:5px; }
+    .prog-lbl { font-size: .8rem; font-weight: 500; }
+    .prog-val { font-size: .8rem; color: var(--text-muted); }
+    .prog-bar { height: 7px; background: #e2e8f0; border-radius: 99px; overflow:hidden; }
+    .prog-fill{ height: 100%; border-radius:99px; transition: width .6s ease; }
+
+    /* ── PERIODO BANNER ── */
+    .periodo-banner {
+      background: linear-gradient(90deg, #eff6ff, #f0fdf4);
+      border: 1px solid #bfdbfe;
+      border-radius: 10px; padding: 12px 20px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; font-size: .84rem;
+    }
+    .periodo-banner i { color: var(--accent); font-size: 1.1rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .topbar { left: 0; }
+      .wb-icon-lg { display:none; }
+    }
+
+    /* ── SCROLL ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+    /* Fade-in */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up { animation: fadeUp .4s ease both; }
+    .delay-1 { animation-delay:.07s; }
+    .delay-2 { animation-delay:.14s; }
+    .delay-3 { animation-delay:.21s; }
+    .delay-4 { animation-delay:.28s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-row">
+      <div class="brand-logo"><i class="bi bi-mortarboard-fill"></i></div>
+      <div>
+        <div class="brand-name">Portal Director</div>
+        <div class="brand-tag">Gestão Escolar</div>
+      </div>
+    </div>
+    <div class="school-pill">
+      <i class="bi bi-building-fill"></i>
+      <span>{{ escola.nome_abreviado|default:"Escola" }}</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <a href="#" class="nav-link active">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-bell"></i> Comunicados
+      <span class="nav-count">3</span>
+    </a>
+
+    <div class="nav-label">Académico</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-people-fill"></i> Turmas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-person-lines-fill"></i> Alunos
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-person-workspace"></i> Professores
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-book-fill"></i> Disciplinas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-calendar3"></i> Horários
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-journal-check"></i> Matrículas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-pencil-square"></i> Avaliações & Notas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-file-earmark-arrow-up"></i> Material Didáctico
+    </a>
+
+    <div class="nav-label">Financeiro</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-wallet2"></i> Contas dos Alunos
+    </a>
+
+    <div class="nav-label">Gestão</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-bar-chart-line"></i> Relatórios
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-gear-fill"></i> Configurações
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-av">{{ diretor.nome_completo|default:"D"|slice:":2"|upper }}</div>
+      <div>
+        <div class="user-name">{{ diretor.nome_completo|default:"Director" }}</div>
+        <div class="user-cargo">Director Escolar</div>
+      </div>
+      <i class="bi bi-chevron-expand ms-auto" style="color:rgba(255,255,255,.3)"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ TOPBAR ═══════════════ -->
+<header class="topbar">
+  <button class="icon-btn d-md-none" id="menuToggle">
+    <i class="bi bi-list" style="font-size:1.1rem"></i>
+  </button>
+
+  <span class="topbar-title">Dashboard</span>
+
+  <div class="topbar-search d-none d-md-block">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Pesquisar alunos, turmas, professores…">
+  </div>
+
+  <div class="topbar-actions">
+    <div class="icon-btn">
+      <i class="bi bi-bell"></i>
+      <span class="notif-dot"></span>
+    </div>
+    <div class="icon-btn"><i class="bi bi-question-circle"></i></div>
+    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
+    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:background .15s"
+         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.75rem">
+        {{ diretor.nome_completo|default:"D"|slice:":2"|upper }}
+      </div>
+      <div>
+        <div style="font-size:.8rem;font-weight:600">{{ diretor.nome_completo|default:"Director"|truncatechars:18 }}</div>
+        <div style="font-size:.7rem;color:var(--text-muted)">Director</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main class="main-content">
+<div class="page-body">
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner fade-up">
+    <i class="bi bi-building-fill wb-icon-lg"></i>
+    <div class="wb-greeting">Bem-vindo de volta,</div>
+    <div class="wb-name">{{ diretor.nome_completo|default:"Director" }}</div>
+    <div class="wb-sub">
+      {{ escola.nome|default:"Escola" }} &nbsp;·&nbsp;
+      Ano Lectivo: <strong>{{ ano_lectivo.designacao|default:"2025/2026" }}</strong>
+      {% if periodo %}
+        &nbsp;·&nbsp; {{ periodo.designacao }}
+      {% endif %}
+    </div>
+    <div class="wb-badges">
+      <div class="wb-badge"><i class="bi bi-calendar-check"></i> <span id="dataAtual"></span></div>
+      <div class="wb-badge"><i class="bi bi-geo-alt"></i> {{ escola.municipio|default:"Luanda" }}, {{ escola.provincia|default:"Angola" }}</div>
+      <div class="wb-badge"><i class="bi bi-patch-check-fill"></i> {{ escola.tipo_ensino|default:"Privado" }}</div>
+    </div>
+  </div>
+
+  <!-- Periodo activo banner (se houver) -->
+  {% if periodo %}
+  <div class="periodo-banner fade-up delay-1">
+    <i class="bi bi-info-circle-fill"></i>
+    <div>
+      <strong>Período activo:</strong> {{ periodo.designacao }} &nbsp;—&nbsp;
+      {{ periodo.data_inicio|date:"d/m/Y" }} a {{ periodo.data_fim|date:"d/m/Y" }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── KPI CARDS ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3 fade-up delay-1">
+      <div class="stat-card sc-blue">
+        <div class="stat-icon"><i class="bi bi-person-lines-fill"></i></div>
+        <div class="stat-value">{{ total_alunos|default:"824" }}</div>
+        <div class="stat-label">Alunos Matriculados</div>
+        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i>+32</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3 fade-up delay-2">
+      <div class="stat-card sc-purple">
+        <div class="stat-icon"><i class="bi bi-person-workspace"></i></div>
+        <div class="stat-value">{{ total_professores|default:"48" }}</div>
+        <div class="stat-label">Professores Activos</div>
+        <div class="stat-trend trend-neu"><i class="bi bi-dash"></i>Estável</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3 fade-up delay-3">
+      <div class="stat-card sc-cyan">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-value">{{ total_turmas|default:"22" }}</div>
+        <div class="stat-label">Turmas Activas</div>
+        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i>+2</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3 fade-up delay-4">
+      <div class="stat-card sc-green">
+        <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="stat-value">
+          {% if media_geral %}{{ media_geral|floatformat:1 }}{% else %}14.2{% endif %}
+        </div>
+        <div class="stat-label">Média Geral (Notas)</div>
+        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i>+0.4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALERTAS ── -->
+  {% if contas_atrasadas or contas_bloqueadas or inscricoes_pendentes %}
+  <div class="mb-4 fade-up">
+    {% if inscricoes_pendentes %}
+    <div class="alert-strip as-info">
+      <i class="bi bi-info-circle-fill as-icon"></i>
+      <div>
+        <div class="as-title">{{ inscricoes_pendentes }} inscrição(ões) aguardam processamento</div>
+        <div class="as-sub">Verifique o módulo de Matrículas para processar as inscrições pendentes.</div>
+      </div>
+    </div>
+    {% endif %}
+    {% if contas_atrasadas %}
+    <div class="alert-strip as-warn">
+      <i class="bi bi-exclamation-triangle-fill as-icon"></i>
+      <div>
+        <div class="as-title">{{ contas_atrasadas|default:"23" }} alunos com propinas em atraso</div>
+        <div class="as-sub">Acceda ao módulo Financeiro para ver o detalhe e contactar os encarregados.</div>
+      </div>
+    </div>
+    {% endif %}
+    {% if contas_bloqueadas %}
+    <div class="alert-strip as-danger">
+      <i class="bi bi-slash-circle-fill as-icon"></i>
+      <div>
+        <div class="as-title">{{ contas_bloqueadas|default:"7" }} contas bloqueadas por inadimplência</div>
+        <div class="as-sub">Acesso ao portal suspenso. Resolva com o departamento financeiro.</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="mb-4 fade-up">
+    <div class="alert-strip as-info">
+      <i class="bi bi-info-circle-fill as-icon"></i>
+      <div>
+        <div class="as-title">23 alunos com propinas em atraso</div>
+        <div class="as-sub">Acceda ao módulo Financeiro para ver o detalhe.</div>
+      </div>
+    </div>
+    <div class="alert-strip as-warn">
+      <i class="bi bi-exclamation-triangle-fill as-icon"></i>
+      <div>
+        <div class="as-title">5 inscrições aguardam processamento</div>
+        <div class="as-sub">Verifique o módulo de Matrículas.</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── ROW 2: Gráficos ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-7 fade-up delay-1">
+      <div class="chart-card h-100">
+        <div class="section-header">
+          <span class="section-title">Matrículas — Últimos 6 Meses</span>
+          <span style="font-size:.75rem;color:var(--text-muted)">{{ escola.nome_abreviado|default:"Escola" }}</span>
+        </div>
+        <canvas id="chartMatriculas"></canvas>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5 fade-up delay-2">
+      <div class="chart-card h-100">
+        <div class="section-header">
+          <span class="section-title">Alunos por Curso</span>
+        </div>
+        <canvas id="chartCurso"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ROW 3: Matrículas recentes + Financeiro ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-7 fade-up delay-1">
+      <div class="table-card">
+        <div class="card-hdr">
+          <span class="section-title">Últimas Matrículas</span>
+          <a href="#" class="btn btn-sm" style="background:#eff6ff;color:var(--accent);border-radius:8px;font-size:.78rem;font-weight:600">
+            Ver todas <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th>Aluno</th><th>Curso</th><th>Turma</th><th>Tipo</th><th>Data</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in ultimas_matriculas %}
+              <tr>
+                <td>
+                  <div style="font-weight:600">{{ m.aluno.nome_completo }}</div>
+                  <div style="font-size:.72rem;color:var(--text-muted)">{{ m.numero_matricula|default:"—" }}</div>
+                </td>
+                <td>{{ m.curso.nome_abreviado|default:"—" }}</td>
+                <td>{{ m.turma.designacao|default:"—" }}</td>
+                <td>
+                  <span class="tag {% if m.tipo_matricula == 'Nova' %}tag-blue{% elif m.tipo_matricula == 'Renovação' %}tag-green{% else %}tag-purple{% endif %}">
+                    {{ m.tipo_matricula }}
+                  </span>
+                </td>
+                <td style="color:var(--text-muted);font-size:.8rem">{{ m.data_matricula|date:"d/m/Y" }}</td>
+                <td>
+                  <span class="tag {% if m.status == 'Activa' %}tag-green{% elif m.status == 'Cancelada' %}tag-red{% elif m.status == 'Transferida' %}tag-blue{% else %}tag-purple{% endif %}">
+                    {{ m.status }}
+                  </span>
+                </td>
+              </tr>
+              {% empty %}
+              <!-- Demo data -->
+              <tr>
+                <td><div style="font-weight:600">Maria da Silva Santos</div><div style="font-size:.72rem;color:var(--text-muted)">MAT-2026-0148</div></td>
+                <td>Informática</td><td>12.ª A</td>
+                <td><span class="tag tag-blue">Nova</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">08/03/2026</td>
+                <td><span class="tag tag-green">Activa</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600">João Fernandes Lopes</div><div style="font-size:.72rem;color:var(--text-muted)">MAT-2026-0147</div></td>
+                <td>Gestão</td><td>11.ª B</td>
+                <td><span class="tag tag-green">Renovação</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">07/03/2026</td>
+                <td><span class="tag tag-green">Activa</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600">Ana Beatriz Correia</div><div style="font-size:.72rem;color:var(--text-muted)">MAT-2026-0146</div></td>
+                <td>Direito</td><td>10.ª C</td>
+                <td><span class="tag tag-purple">Transferência</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">06/03/2026</td>
+                <td><span class="tag tag-blue">Transferida</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600">Carlos Eduardo Neto</div><div style="font-size:.72rem;color:var(--text-muted)">MAT-2026-0145</div></td>
+                <td>Contabilidade</td><td>12.ª A</td>
+                <td><span class="tag tag-blue">Nova</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">05/03/2026</td>
+                <td><span class="tag tag-green">Activa</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600">Filipa Gonçalves Mendes</div><div style="font-size:.72rem;color:var(--text-muted)">MAT-2026-0144</div></td>
+                <td>Saúde</td><td>11.ª A</td>
+                <td><span class="tag tag-green">Renovação</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">04/03/2026</td>
+                <td><span class="tag tag-green">Activa</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5 fade-up delay-2">
+      <div class="stat-card sc-warn h-100">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <span class="section-title">Resumo Financeiro</span>
+          <a href="#" style="font-size:.78rem;color:var(--accent);font-weight:600;text-decoration:none">Ver detalhe</a>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px">
+          <div style="background:#f0fdf4;border-radius:10px;padding:14px 16px">
+            <div style="font-size:.7rem;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Recebido</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:#065f46">
+              {{ financeiro.total_pago|default:"8.240.000" }}
+            </div>
+            <div style="font-size:.7rem;color:var(--text-muted)">AOA</div>
+          </div>
+          <div style="background:#fef2f2;border-radius:10px;padding:14px 16px">
+            <div style="font-size:.7rem;color:#dc2626;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Saldo Devedor</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:#991b1b">
+              {{ financeiro.saldo_devedor|default:"1.560.000" }}
+            </div>
+            <div style="font-size:.7rem;color:var(--text-muted)">AOA</div>
+          </div>
+        </div>
+
+        <div class="prog-row">
+          <div class="prog-hdr"><span class="prog-lbl">Em Dia</span><span class="prog-val">72%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:72%;background:#059669"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-hdr"><span class="prog-lbl">Pendente</span><span class="prog-val">17%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:17%;background:#d97706"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-hdr"><span class="prog-lbl">Atrasado</span><span class="prog-val">8%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:8%;background:#ef4444"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-hdr"><span class="prog-lbl">Bloqueado</span><span class="prog-val">3%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:3%;background:#991b1b"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ROW 4: Comunicados + Professores recentes ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6 fade-up delay-1">
+      <div class="table-card">
+        <div class="card-hdr">
+          <span class="section-title">Comunicados Activos</span>
+          <button class="btn btn-sm" style="background:#eff6ff;color:var(--accent);border-radius:8px;font-size:.78rem;font-weight:600">
+            <i class="bi bi-plus me-1"></i>Novo
+          </button>
+        </div>
+        {% for c in comunicados %}
+        <div class="mli">
+          <div class="mli-av"
+            style="background:{% if c.tipo == 'Urgente' %}#fee2e2;color:#dc2626{% elif c.tipo == 'Evento' %}#d1fae5;color:#059669{% else %}#dbeafe;color:#1d4ed8{% endif %}">
+            <i class="bi {% if c.tipo == 'Urgente' %}bi-megaphone-fill{% elif c.tipo == 'Evento' %}bi-calendar-event{% else %}bi-info-circle{% endif %}"></i>
+          </div>
+          <div class="mli-info">
+            <div class="mli-name">{{ c.titulo }}</div>
+            <div class="mli-sub">{{ c.get_tipo_display }} · Para: {{ c.destinatario_tipo }}</div>
+          </div>
+          <div class="mli-meta">
+            <div class="mli-date">{{ c.data_publicacao|date:"d/m" }}</div>
+            <span class="tag {% if c.activo %}tag-green{% else %}tag-gray{% endif %}" style="font-size:.6rem;margin-top:3px">
+              {% if c.activo %}Activo{% else %}Expirado{% endif %}
+            </span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="mli">
+          <div class="mli-av" style="background:#fee2e2;color:#dc2626"><i class="bi bi-megaphone-fill"></i></div>
+          <div class="mli-info">
+            <div class="mli-name">Encerramento antecipado – 3.º Período</div>
+            <div class="mli-sub">Urgente · Para: Todos</div>
+          </div>
+          <div class="mli-meta"><div class="mli-date">08/03</div><span class="tag tag-green" style="font-size:.6rem">Activo</span></div>
+        </div>
+        <div class="mli">
+          <div class="mli-av" style="background:#d1fae5;color:#059669"><i class="bi bi-calendar-event"></i></div>
+          <div class="mli-info">
+            <div class="mli-name">Feira de Ciências 2026</div>
+            <div class="mli-sub">Evento · Para: Alunos</div>
+          </div>
+          <div class="mli-meta"><div class="mli-date">06/03</div><span class="tag tag-green" style="font-size:.6rem">Activo</span></div>
+        </div>
+        <div class="mli">
+          <div class="mli-av" style="background:#fef3c7;color:#d97706"><i class="bi bi-info-circle"></i></div>
+          <div class="mli-info">
+            <div class="mli-name">Calendário de Exames Finais</div>
+            <div class="mli-sub">Aviso · Para: Professores</div>
+          </div>
+          <div class="mli-meta"><div class="mli-date">04/03</div><span class="tag tag-green" style="font-size:.6rem">Activo</span></div>
+        </div>
+        <div class="mli">
+          <div class="mli-av" style="background:#dbeafe;color:#1d4ed8"><i class="bi bi-megaphone"></i></div>
+          <div class="mli-info">
+            <div class="mli-name">Reunião de Encarregados – Março</div>
+            <div class="mli-sub">Geral · Para: Encarregados</div>
+          </div>
+          <div class="mli-meta"><div class="mli-date">02/03</div><span class="tag tag-yellow" style="font-size:.6rem">Expira 15/03</span></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6 fade-up delay-2">
+      <div class="table-card">
+        <div class="card-hdr">
+          <span class="section-title">Quadro de Professores</span>
+          <a href="#" style="font-size:.78rem;color:var(--accent);font-weight:600;text-decoration:none">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dt">
+            <thead>
+              <tr><th>Professor</th><th>Nível</th><th>Disciplinas</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#ede9fe;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;flex-shrink:0">MS</div>
+                    <div>
+                      <div style="font-weight:600;font-size:.83rem">Manuel dos Santos</div>
+                      <div style="font-size:.7rem;color:var(--text-muted)">Nº 00124</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="tag tag-purple">Mestre</span></td>
+                <td>3</td>
+                <td><span class="tag tag-green">Activo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;flex-shrink:0">AL</div>
+                    <div>
+                      <div style="font-weight:600;font-size:.83rem">Ana Luísa Ferreira</div>
+                      <div style="font-size:.7rem;color:var(--text-muted)">Nº 00098</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="tag tag-blue">Licenciada</span></td>
+                <td>4</td>
+                <td><span class="tag tag-green">Activo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;flex-shrink:0">JM</div>
+                    <div>
+                      <div style="font-weight:600;font-size:.83rem">José Miguel Costa</div>
+                      <div style="font-size:.7rem;color:var(--text-muted)">Nº 00212</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="tag tag-blue">Licenciado</span></td>
+                <td>2</td>
+                <td><span class="tag tag-yellow">Licença</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;flex-shrink:0">RN</div>
+                    <div>
+                      <div style="font-weight:600;font-size:.83rem">Rosa Neves Pedro</div>
+                      <div style="font-size:.7rem;color:var(--text-muted)">Nº 00177</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="tag tag-purple">Doutora</span></td>
+                <td>5</td>
+                <td><span class="tag tag-green">Activo</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;flex-shrink:0">CB</div>
+                    <div>
+                      <div style="font-weight:600;font-size:.83rem">Carlos Borges Lima</div>
+                      <div style="font-size:.7rem;color:var(--text-muted)">Nº 00341</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="tag tag-blue">Licenciado</span></td>
+                <td>3</td>
+                <td><span class="tag tag-green">Activo</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ROW 5: Turmas e Desempenho ── -->
+  <div class="row g-3 mb-2">
+    <div class="col-12 col-lg-5 fade-up delay-1">
+      <div class="table-card">
+        <div class="card-hdr">
+          <span class="section-title">Turmas — Ocupação</span>
+          <a href="#" style="font-size:.78rem;color:var(--accent);font-weight:600;text-decoration:none">Gerir <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dt">
+            <thead><tr><th>Turma</th><th>Alunos</th><th>Capacidade</th><th>Turno</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Inf. 12.ª A</strong></td><td>38</td>
+                <td>
+                  <div class="prog-bar" style="width:90px"><div class="prog-fill" style="width:95%;background:#059669"></div></div>
+                </td>
+                <td><span class="tag tag-blue">Manhã</span></td>
+              </tr>
+              <tr>
+                <td><strong>Gest. 11.ª B</strong></td><td>31</td>
+                <td><div class="prog-bar" style="width:90px"><div class="prog-fill" style="width:78%;background:#1d4ed8"></div></div></td>
+                <td><span class="tag tag-yellow">Tarde</span></td>
+              </tr>
+              <tr>
+                <td><strong>Dir. 10.ª C</strong></td><td>40</td>
+                <td><div class="prog-bar" style="width:90px"><div class="prog-fill" style="width:100%;background:#dc2626"></div></div></td>
+                <td><span class="tag tag-blue">Manhã</span></td>
+              </tr>
+              <tr>
+                <td><strong>Cont. 12.ª B</strong></td><td>25</td>
+                <td><div class="prog-bar" style="width:90px"><div class="prog-fill" style="width:63%;background:#7c3aed"></div></div></td>
+                <td><span class="tag tag-gray">Noite</span></td>
+              </tr>
+              <tr>
+                <td><strong>Saúde 11.ª A</strong></td><td>36</td>
+                <td><div class="prog-bar" style="width:90px"><div class="prog-fill" style="width:90%;background:#059669"></div></div></td>
+                <td><span class="tag tag-yellow">Tarde</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-7 fade-up delay-2">
+      <div class="chart-card h-100">
+        <div class="section-header">
+          <span class="section-title">Média por Disciplina</span>
+          <span class="tag tag-blue">Ano Lectivo Actual</span>
+        </div>
+        <canvas id="chartDisciplinas"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+</main>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Data actual
+  document.getElementById('dataAtual').textContent =
+    new Date().toLocaleDateString('pt-AO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  // Mobile sidebar
+  document.getElementById('menuToggle')?.addEventListener('click',()=>
+    document.getElementById('sidebar').classList.toggle('open')
+  );
+
+  // Paleta light
+  const P = {
+    blue:   '#1d4ed8',
+    cyan:   '#0891b2',
+    purple: '#7c3aed',
+    green:  '#059669',
+    warn:   '#d97706',
+    blueLt: 'rgba(29,78,216,.12)',
+    gridLn: '#e2e8f0',
+    tick:   '#94a3b8',
+  };
+
+  // ── Matrículas mensais ─────────────────────────
+  const meses = {{ matriculas_mensal|default:"[{mes:'Out/2025',qtd:65},{mes:'Nov/2025',qtd:82},{mes:'Dez/2025',qtd:44},{mes:'Jan/2026',qtd:120},{mes:'Fev/2026',qtd:95},{mes:'Mar/2026',qtd:138}]" }};
+  new Chart(document.getElementById('chartMatriculas'),{
+    type:'bar',
+    data:{
+      labels: meses.map(m=>m.mes),
+      datasets:[{
+        label:'Matrículas',
+        data: meses.map(m=>m.qtd),
+        backgroundColor: P.blueLt,
+        borderColor: P.blue,
+        borderWidth: 2,
+        borderRadius: 8,
+        hoverBackgroundColor:'rgba(29,78,216,.25)',
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:P.gridLn}, ticks:{color:P.tick,font:{size:11,family:'Plus Jakarta Sans'}}},
+        y:{grid:{color:P.gridLn}, ticks:{color:P.tick,font:{size:11,family:'Plus Jakarta Sans'}}},
+      }
+    }
+  });
+
+  // ── Alunos por curso (doughnut) ────────────────
+  const cursos = {{ alunos_por_curso|default:"[{'curso__nome':'Informática','total':210},{'curso__nome':'Gestão','total':185},{'curso__nome':'Contabilidade','total':156},{'curso__nome':'Direito','total':142},{'curso__nome':'Saúde','total':131}]" }};
+  new Chart(document.getElementById('chartCurso'),{
+    type:'doughnut',
+    data:{
+      labels: cursos.map(c=>c['curso__nome']||c.nome||'—'),
+      datasets:[{
+        data: cursos.map(c=>c.total),
+        backgroundColor:['#1d4ed8','#0891b2','#7c3aed','#059669','#d97706'],
+        borderColor:'#ffffff',
+        borderWidth:3,
+        hoverOffset:6,
+      }]
+    },
+    options:{
+      responsive:true,
+      cutout:'65%',
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{color:'#475569',font:{size:11,family:'Plus Jakarta Sans'},padding:14,usePointStyle:true}
+        }
+      }
+    }
+  });
+
+  // ── Média por disciplina (horizontal bar) ──────
+  const disciplinas = [
+    {d:'Matemática',m:12.4},{d:'Português',m:14.8},{d:'Física',m:11.9},
+    {d:'Informática',m:15.3},{d:'Gestão',m:13.7},{d:'Inglês',m:14.1},
+    {d:'Biologia',m:13.2},{d:'Economia',m:13.9},
+  ];
+  new Chart(document.getElementById('chartDisciplinas'),{
+    type:'bar',
+    data:{
+      labels: disciplinas.map(d=>d.d),
+      datasets:[{
+        label:'Média',
+        data: disciplinas.map(d=>d.m),
+        backgroundColor: disciplinas.map(d=>
+          d.m>=14 ? 'rgba(5,150,105,.2)' :
+          d.m>=12 ? 'rgba(29,78,216,.15)' :
+                    'rgba(220,38,38,.15)'
+        ),
+        borderColor: disciplinas.map(d=>
+          d.m>=14 ? '#059669' : d.m>=12 ? '#1d4ed8' : '#dc2626'
+        ),
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{
+          min:0, max:20,
+          grid:{color:P.gridLn},
+          ticks:{color:P.tick,font:{size:11}},
+        },
+        y:{grid:{display:false}, ticks:{color:'#0f172a',font:{size:11,weight:'500'}}},
+      }
+    }
+  });
+</script>
+</body>
+</html>

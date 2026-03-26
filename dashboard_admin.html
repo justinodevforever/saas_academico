@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduAdmin — Painel de Administração</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-base:    #0b0f1a;
+      --bg-card:    #111827;
+      --bg-hover:   #1a2235;
+      --accent:     #3b82f6;
+      --accent-2:   #06b6d4;
+      --accent-3:   #8b5cf6;
+      --accent-4:   #10b981;
+      --accent-warn:#f59e0b;
+      --accent-danger:#ef4444;
+      --text-main:  #f1f5f9;
+      --text-muted: #64748b;
+      --border:     #1e2d40;
+      --sidebar-w:  260px;
+      --radius:     12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4,h5,h6,.brand { font-family: 'Syne', sans-serif; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      z-index: 1000;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff;
+    }
+
+    .brand-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .brand-sub  { font-size: .7rem; color: var(--text-muted); margin-top: 1px; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
+
+    .nav-label {
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 12px 8px 6px;
+    }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: var(--text-muted); font-size: .875rem; font-weight: 500;
+      text-decoration: none; transition: all .18s;
+      margin-bottom: 2px;
+    }
+
+    .nav-link i { font-size: 1rem; width: 18px; flex-shrink: 0; }
+    .nav-link:hover { background: var(--bg-hover); color: var(--text-main); }
+    .nav-link.active {
+      background: rgba(59,130,246,.15);
+      color: var(--accent);
+    }
+    .nav-link .badge-pill {
+      margin-left: auto;
+      background: rgba(59,130,246,.2);
+      color: var(--accent);
+      font-size: .65rem; padding: 2px 7px;
+      border-radius: 99px; font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      background: var(--bg-hover); cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg,var(--accent-3),var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .8rem; color: #fff; flex-shrink: 0;
+    }
+
+    .user-name  { font-size: .82rem; font-weight: 600; }
+    .user-role  { font-size: .7rem; color: var(--text-muted); }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: var(--sidebar-w);
+      right: 0; height: 64px;
+      background: rgba(11,15,26,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 28px; gap: 16px; z-index: 900;
+    }
+
+    .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.05rem; }
+
+    .topbar-search {
+      flex: 1; max-width: 360px; margin-left: 24px;
+      position: relative;
+    }
+    .topbar-search input {
+      width: 100%; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text-main); padding: 8px 14px 8px 38px;
+      font-size: .85rem; outline: none;
+      transition: border-color .2s;
+    }
+    .topbar-search input:focus { border-color: var(--accent); }
+    .topbar-search i {
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted); font-size: .9rem;
+    }
+
+    .topbar-actions { margin-left: auto; display:flex; align-items:center; gap:8px; }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); cursor: pointer;
+      transition: all .18s; position: relative;
+    }
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+
+    .notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-danger);
+      border: 2px solid var(--bg-base);
+    }
+
+    /* ── MAIN ── */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      padding-top: 64px;
+      min-height: 100vh;
+    }
+
+    .page-body { padding: 28px; }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+
+    .stat-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.c-blue::before   { background: var(--accent); }
+    .stat-card.c-cyan::before   { background: var(--accent-2); }
+    .stat-card.c-purple::before { background: var(--accent-3); }
+    .stat-card.c-green::before  { background: var(--accent-4); }
+    .stat-card.c-warn::before   { background: var(--accent-warn); }
+
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 16px;
+    }
+    .c-blue   .stat-icon { background: rgba(59,130,246,.15);  color: var(--accent); }
+    .c-cyan   .stat-icon { background: rgba(6,182,212,.15);   color: var(--accent-2); }
+    .c-purple .stat-icon { background: rgba(139,92,246,.15);  color: var(--accent-3); }
+    .c-green  .stat-icon { background: rgba(16,185,129,.15);  color: var(--accent-4); }
+    .c-warn   .stat-icon { background: rgba(245,158,11,.15);  color: var(--accent-warn); }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800; line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
+
+    .stat-trend {
+      position: absolute; bottom: 20px; right: 20px;
+      font-size: .75rem; font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .stat-trend.up   { color: var(--accent-4); }
+    .stat-trend.down { color: var(--accent-danger); }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700;
+    }
+
+    /* ── CHART CARD ── */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .chart-card canvas { max-height: 240px; }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-card .card-header-custom {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .table-responsive { overflow-x: auto; }
+
+    table.admin-table {
+      width: 100%; border-collapse: collapse;
+      font-size: .85rem;
+    }
+    .admin-table thead th {
+      padding: 12px 16px;
+      color: var(--text-muted); font-weight: 600;
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .admin-table tbody tr {
+      border-bottom: 1px solid rgba(30,45,64,.5);
+      transition: background .15s;
+    }
+    .admin-table tbody tr:last-child { border-bottom: none; }
+    .admin-table tbody tr:hover { background: var(--bg-hover); }
+    .admin-table tbody td { padding: 13px 16px; }
+
+    /* ── BADGES ── */
+    .badge-status {
+      font-size: .68rem; padding: 3px 10px;
+      border-radius: 99px; font-weight: 600;
+      display: inline-block;
+    }
+    .bs-active, .bs-matriculado, .bs-activa {
+      background: rgba(16,185,129,.15); color: var(--accent-4);
+    }
+    .bs-inactivo, .bs-cancelada {
+      background: rgba(239,68,68,.15); color: var(--accent-danger);
+    }
+    .bs-pendente, .bs-licenca {
+      background: rgba(245,158,11,.15); color: var(--accent-warn);
+    }
+    .bs-transferido, .bs-transferida {
+      background: rgba(6,182,212,.15); color: var(--accent-2);
+    }
+    .bs-concluido, .bs-concluida {
+      background: rgba(139,92,246,.15); color: var(--accent-3);
+    }
+
+    /* ── ALERT CARDS ── */
+    .alert-card {
+      background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .alert-card i { color: var(--accent-warn); font-size: 1.1rem; margin-top: 2px; }
+    .alert-card-title { font-weight: 600; font-size: .85rem; }
+    .alert-card-sub   { font-size: .78rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── MINI LIST ── */
+    .mini-list-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(30,45,64,.5);
+      transition: background .15s;
+    }
+    .mini-list-item:last-child { border-bottom: none; }
+    .mini-list-item:hover { background: var(--bg-hover); }
+
+    .mli-avatar {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .78rem; flex-shrink: 0;
+    }
+
+    .mli-info .mli-name { font-size: .85rem; font-weight: 500; }
+    .mli-info .mli-sub  { font-size: .74rem; color: var(--text-muted); margin-top: 1px; }
+    .mli-meta { margin-left: auto; text-align: right; }
+    .mli-meta .mli-date { font-size: .72rem; color: var(--text-muted); }
+
+    /* ── PROGRESS ── */
+    .prog-row { margin-bottom: 14px; }
+    .prog-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .prog-label  { font-size: .8rem; }
+    .prog-val    { font-size: .8rem; color: var(--text-muted); }
+    .prog-bar    { height: 6px; border-radius: 99px; background: var(--border); overflow: hidden; }
+    .prog-fill   { height: 100%; border-radius: 99px; transition: width .6s ease; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .topbar { left: 0; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+    <div>
+      <div class="brand-text">EduAdmin</div>
+      <div class="brand-sub">Sistema de Gestão Escolar</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <a href="#" class="nav-link active">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-bell"></i> Comunicados
+      <span class="badge-pill">3</span>
+    </a>
+
+    <div class="nav-label">Gestão Académica</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-building-fill"></i> Escolas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-person-lines-fill"></i> Alunos
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-person-workspace"></i> Professores
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-people-fill"></i> Turmas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-book-fill"></i> Disciplinas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-journal-check"></i> Matrículas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-pencil-square"></i> Avaliações / Notas
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-calendar3"></i> Horários
+    </a>
+
+    <div class="nav-label">Financeiro</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-wallet2"></i> Contas dos Alunos
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-credit-card"></i> Planos de Subscrição
+    </a>
+
+    <div class="nav-label">Sistema</div>
+    <a href="#" class="nav-link">
+      <i class="bi bi-shield-lock"></i> Roles & Permissões
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-bar-chart-line"></i> Relatórios
+    </a>
+    <a href="#" class="nav-link">
+      <i class="bi bi-gear-fill"></i> Configurações
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">AD</div>
+      <div>
+        <div class="user-name">Administrador</div>
+        <div class="user-role">Super Admin</div>
+      </div>
+      <i class="bi bi-three-dots-vertical ms-auto" style="color:var(--text-muted)"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ TOPBAR ═══════════════ -->
+<header class="topbar">
+  <button class="icon-btn d-md-none" id="menuToggle">
+    <i class="bi bi-list" style="font-size:1.1rem"></i>
+  </button>
+
+  <span class="topbar-title">Dashboard</span>
+
+  <div class="topbar-search d-none d-md-block">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Pesquisar alunos, escolas, matrículas…">
+  </div>
+
+  <div class="topbar-actions">
+    <div class="icon-btn">
+      <i class="bi bi-bell"></i>
+      <span class="notif-dot"></span>
+    </div>
+    <div class="icon-btn">
+      <i class="bi bi-moon-stars"></i>
+    </div>
+    <div class="icon-btn">
+      <i class="bi bi-question-circle"></i>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+<main class="main-content">
+  <div class="page-body">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800">Painel de Administração</h1>
+        <p style="color:var(--text-muted);font-size:.85rem;margin-top:4px">
+          Visão geral do sistema · <span id="dataAtual"></span>
+        </p>
+      </div>
+      <button class="btn btn-sm" style="background:var(--accent);color:#fff;border-radius:8px;font-weight:600;padding:8px 18px">
+        <i class="bi bi-download me-2"></i>Exportar Relatório
+      </button>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card c-blue">
+          <div class="stat-icon"><i class="bi bi-building-fill"></i></div>
+          <div class="stat-value">{{ total_escolas|default:"24" }}</div>
+          <div class="stat-label">Escolas Ativas</div>
+          <div class="stat-trend up"><i class="bi bi-arrow-up-short"></i> +2 este mês</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card c-cyan">
+          <div class="stat-icon"><i class="bi bi-person-lines-fill"></i></div>
+          <div class="stat-value">{{ total_alunos|default:"3.847" }}</div>
+          <div class="stat-label">Alunos Matriculados</div>
+          <div class="stat-trend up"><i class="bi bi-arrow-up-short"></i> +148</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card c-purple">
+          <div class="stat-icon"><i class="bi bi-person-workspace"></i></div>
+          <div class="stat-value">{{ total_professores|default:"312" }}</div>
+          <div class="stat-label">Professores Ativos</div>
+          <div class="stat-trend up"><i class="bi bi-arrow-up-short"></i> +11</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card c-green">
+          <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+          <div class="stat-value">{{ total_turmas|default:"189" }}</div>
+          <div class="stat-label">Turmas Ativas</div>
+          <div class="stat-trend down"><i class="bi bi-arrow-down-short"></i> -3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Financeiro + Alertas ── -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-4">
+        <div class="stat-card c-warn h-100">
+          <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+          <div class="stat-value" style="font-size:1.6rem">
+            {{ financeiro.total_pago|default:"12.450.000" }} <span style="font-size:.85rem;color:var(--text-muted)">AOA</span>
+          </div>
+          <div class="stat-label mb-3">Total Recebido (Ano Lectivo)</div>
+
+          <div class="prog-row">
+            <div class="prog-header">
+              <span class="prog-label">Em Dia</span>
+              <span class="prog-val">78%</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill" style="width:78%;background:var(--accent-4)"></div>
+            </div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-header">
+              <span class="prog-label">Pendente</span>
+              <span class="prog-val">14%</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill" style="width:14%;background:var(--accent-warn)"></div>
+            </div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-header">
+              <span class="prog-label">Atrasado / Bloqueado</span>
+              <span class="prog-val">8%</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill" style="width:8%;background:var(--accent-danger)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-8">
+        <div class="chart-card h-100">
+          <div class="section-header">
+            <span class="section-title">Matrículas — Últimos 6 Meses</span>
+            <select class="form-select form-select-sm" style="width:auto;background:var(--bg-hover);border-color:var(--border);color:var(--text-main)">
+              <option>Todas as Escolas</option>
+            </select>
+          </div>
+          <canvas id="chartMatriculas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 3: Distribuição + Inscrições recentes ── -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-5">
+        <div class="chart-card h-100">
+          <div class="section-header">
+            <span class="section-title">Alunos por Status</span>
+          </div>
+          <canvas id="chartStatus"></canvas>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-7">
+        <div class="table-card h-100">
+          <div class="card-header-custom">
+            <span class="section-title">Inscrições Recentes</span>
+            <a href="#" class="btn btn-sm" style="background:var(--bg-hover);color:var(--text-muted);border-radius:8px;font-size:.78rem">
+              Ver todas <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Aluno</th>
+                  <th>Escola</th>
+                  <th>Curso</th>
+                  <th>Data</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for inscricao in inscricoes_recentes %}
+                <tr>
+                  <td>
+                    <div style="font-weight:500">{{ inscricao.aluno.nome_completo }}</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">{{ inscricao.aluno.numero_processo }}</div>
+                  </td>
+                  <td>{{ inscricao.escola.nome_abreviado }}</td>
+                  <td>{{ inscricao.curso.nome|default:"—" }}</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">{{ inscricao.data_inscricao|date:"d/m/Y" }}</td>
+                  <td><span class="badge-status bs-active">Inscrito</span></td>
+                </tr>
+                {% empty %}
+                <!-- Dados de demonstração -->
+                <tr>
+                  <td>
+                    <div style="font-weight:500">Maria da Silva Santos</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">ES-2024-00148</div>
+                  </td>
+                  <td>IPCA</td><td>Informática</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">08/03/2026</td>
+                  <td><span class="badge-status bs-active">Inscrito</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:500">João Fernandes Lopes</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">ES-2024-00147</div>
+                  </td>
+                  <td>ESSA</td><td>Gestão</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">07/03/2026</td>
+                  <td><span class="badge-status bs-pendente">Pendente</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:500">Ana Beatriz Correia</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">ES-2024-00146</div>
+                  </td>
+                  <td>ISPM</td><td>Direito</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">06/03/2026</td>
+                  <td><span class="badge-status bs-active">Inscrito</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:500">Carlos Eduardo Neto</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">ES-2024-00145</div>
+                  </td>
+                  <td>IPCA</td><td>Contabilidade</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">05/03/2026</td>
+                  <td><span class="badge-status bs-active">Inscrito</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:500">Filipa Gonçalves Mendes</div>
+                    <div style="font-size:.72rem;color:var(--text-muted)">ES-2024-00144</div>
+                  </td>
+                  <td>ESSA</td><td>Saúde</td>
+                  <td style="color:var(--text-muted);font-size:.8rem">04/03/2026</td>
+                  <td><span class="badge-status bs-transferido">Transferida</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 4: Alertas + Comunicados ── -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-5">
+        <div class="section-header">
+          <span class="section-title">⚠️ Alertas do Sistema</span>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+          {% for escola in escolas_expirando %}
+          <div class="alert-card">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+              <div class="alert-card-title">Plano a expirar — {{ escola.nome_abreviado }}</div>
+              <div class="alert-card-sub">Expira em {{ escola.data_expiracao_plano|date:"d/m/Y" }} · {{ escola.plano_subscricao.nome }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="alert-card">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+              <div class="alert-card-title">Plano a expirar — ISPM Luanda</div>
+              <div class="alert-card-sub">Expira em 15/03/2026 · Plano Básico</div>
+            </div>
+          </div>
+          <div class="alert-card">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+              <div class="alert-card-title">Plano a expirar — ESSA Norte</div>
+              <div class="alert-card-sub">Expira em 22/03/2026 · Plano Standard</div>
+            </div>
+          </div>
+          <div class="alert-card" style="background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)">
+            <i class="bi bi-slash-circle" style="color:var(--accent-danger)"></i>
+            <div>
+              <div class="alert-card-title" style="color:var(--accent-danger)">{{ contas_bloqueadas|default:"47" }} contas de alunos bloqueadas</div>
+              <div class="alert-card-sub">Propinas em atraso há mais de 60 dias</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="table-card">
+          <div class="card-header-custom">
+            <span class="section-title">Comunicados Recentes</span>
+            <a href="#" class="btn btn-sm" style="background:var(--bg-hover);color:var(--text-muted);border-radius:8px;font-size:.78rem">
+              Novo <i class="bi bi-plus ms-1"></i>
+            </a>
+          </div>
+          {% for c in comunicados_ativos %}
+          <div class="mini-list-item">
+            <div class="mli-avatar" style="background:rgba(59,130,246,.15);color:var(--accent)">
+              <i class="bi bi-megaphone"></i>
+            </div>
+            <div class="mli-info">
+              <div class="mli-name">{{ c.titulo }}</div>
+              <div class="mli-sub">{{ c.escola.nome_abreviado }} · {{ c.get_tipo_display }} · Para: {{ c.destinatario_tipo }}</div>
+            </div>
+            <div class="mli-meta">
+              <div class="mli-date">{{ c.data_publicacao|date:"d/m" }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="mini-list-item">
+            <div class="mli-avatar" style="background:rgba(239,68,68,.15);color:var(--accent-danger)"><i class="bi bi-megaphone-fill"></i></div>
+            <div class="mli-info">
+              <div class="mli-name">Encerramento antecipado – 3.º Período</div>
+              <div class="mli-sub">IPCA · Urgente · Para: Todos</div>
+            </div>
+            <div class="mli-meta"><div class="mli-date">08/03</div></div>
+          </div>
+          <div class="mini-list-item">
+            <div class="mli-avatar" style="background:rgba(16,185,129,.15);color:var(--accent-4)"><i class="bi bi-calendar-event"></i></div>
+            <div class="mli-info">
+              <div class="mli-name">Feira de Ciências 2026</div>
+              <div class="mli-sub">ESSA · Evento · Para: Alunos</div>
+            </div>
+            <div class="mli-meta"><div class="mli-date">06/03</div></div>
+          </div>
+          <div class="mini-list-item">
+            <div class="mli-avatar" style="background:rgba(245,158,11,.15);color:var(--accent-warn)"><i class="bi bi-info-circle"></i></div>
+            <div class="mli-info">
+              <div class="mli-name">Calendário de Exames Finais</div>
+              <div class="mli-sub">Global · Aviso · Para: Professores</div>
+            </div>
+            <div class="mli-meta"><div class="mli-date">04/03</div></div>
+          </div>
+          <div class="mini-list-item">
+            <div class="mli-avatar" style="background:rgba(139,92,246,.15);color:var(--accent-3)"><i class="bi bi-megaphone"></i></div>
+            <div class="mli-info">
+              <div class="mli-name">Reunião de Encarregados – Março</div>
+              <div class="mli-sub">ISPM · Geral · Para: Encarregados</div>
+            </div>
+            <div class="mli-meta"><div class="mli-date">02/03</div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 5: Roles & Planos ── -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="table-card">
+          <div class="card-header-custom">
+            <span class="section-title">Roles do Sistema</span>
+            <a href="#" style="color:var(--accent);font-size:.8rem">Gerir <i class="bi bi-arrow-right ms-1"></i></a>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Role</th><th>Utilizadores</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><i class="bi bi-shield-fill me-2" style="color:var(--accent-danger)"></i>Administrador</td><td>5</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+                <tr><td><i class="bi bi-person-fill me-2" style="color:var(--accent-4)"></i>Professor</td><td>312</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+                <tr><td><i class="bi bi-mortarboard me-2" style="color:var(--accent-2)"></i>Estudante</td><td>3.847</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+                <tr><td><i class="bi bi-clipboard2-check me-2" style="color:var(--accent-warn)"></i>Técnico de Inscrição</td><td>18</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+                <tr><td><i class="bi bi-cash-stack me-2" style="color:var(--accent-3)"></i>Técnico de Finanças</td><td>12</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+                <tr><td><i class="bi bi-person-badge me-2" style="color:var(--text-muted)"></i>Coordenador</td><td>24</td><td><span class="badge-status bs-active">Ativo</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="table-card">
+          <div class="card-header-custom">
+            <span class="section-title">Planos de Subscrição</span>
+            <a href="#" style="color:var(--accent);font-size:.8rem">Gerir <i class="bi bi-arrow-right ms-1"></i></a>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Plano</th><th>Escolas</th><th>Preço/Mês</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Básico</strong></td><td>8</td>
+                  <td style="color:var(--accent-4)">50.000 AOA</td>
+                  <td><span class="badge-status bs-active">Ativo</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Standard</strong></td><td>11</td>
+                  <td style="color:var(--accent-4)">120.000 AOA</td>
+                  <td><span class="badge-status bs-active">Ativo</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Premium</strong></td><td>4</td>
+                  <td style="color:var(--accent-4)">250.000 AOA</td>
+                  <td><span class="badge-status bs-active">Ativo</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Enterprise</strong></td><td>1</td>
+                  <td style="color:var(--accent-4)">500.000 AOA</td>
+                  <td><span class="badge-status bs-active">Ativo</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+</main>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Data actual
+  document.getElementById('dataAtual').textContent =
+    new Date().toLocaleDateString('pt-AO', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Mobile sidebar toggle
+  document.getElementById('menuToggle')?.addEventListener('click', () =>
+    document.getElementById('sidebar').classList.toggle('open')
+  );
+
+  // ── Chart: Matrículas mensais ──
+  const ctxM = document.getElementById('chartMatriculas').getContext('2d');
+  const meses = {{ matriculas_mensal|default:"[{mes:'Out/2025',qtd:120},{mes:'Nov/2025',qtd:145},{mes:'Dez/2025',qtd:98},{mes:'Jan/2026',qtd:210},{mes:'Fev/2026',qtd:188},{mes:'Mar/2026',qtd:230}]" }};
+  new Chart(ctxM, {
+    type: 'bar',
+    data: {
+      labels: meses.map(m => m.mes),
+      datasets: [{
+        label: 'Matrículas',
+        data: meses.map(m => m.qtd),
+        backgroundColor: 'rgba(59,130,246,.25)',
+        borderColor: '#3b82f6',
+        borderWidth: 2,
+        borderRadius: 6,
+        hoverBackgroundColor: 'rgba(59,130,246,.5)',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(30,45,64,.5)' }, ticks: { color: '#64748b', font:{size:11} } },
+        y: { grid: { color: 'rgba(30,45,64,.5)' }, ticks: { color: '#64748b', font:{size:11} } },
+      }
+    }
+  });
+
+  // ── Chart: Alunos por status (doughnut) ──
+  const ctxS = document.getElementById('chartStatus').getContext('2d');
+  const statusData = {{ alunos_por_status|default:"[{status:'Matriculado',total:3847},{status:'Transferido',total:142},{status:'Desistente',total:58},{status:'Concluído',total:720},{status:'Suspenso',total:34}]" }};
+  new Chart(ctxS, {
+    type: 'doughnut',
+    data: {
+      labels: statusData.map(s => s.status),
+      datasets: [{
+        data: statusData.map(s => s.total),
+        backgroundColor: ['#3b82f6','#06b6d4','#ef4444','#8b5cf6','#f59e0b'],
+        borderColor: '#111827',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font:{size:11}, padding:14, usePointStyle:true }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>

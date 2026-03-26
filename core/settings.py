@@ -26,7 +26,9 @@ INSTALLED_APPS = [
     'secretario',
     'relatorio',
     'academico',
-    'authenticate'
+    'authenticate',
+    'home',
+    'documentos',
 ]
 
 MIDDLEWARE = [
@@ -63,26 +65,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
+#      }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'db_sgs',
-#         'USER': 'root',
-#         'PASSWORD': 'chitombi',
-#         'HOST': 'localhost',
-#         'PORT': '3306', 
-#     }
-# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db-saas',
+        'NAME': 'db_saas_academicas',
         'USER': 'postgres',
-        'PASSWORD': '123',
+        'PASSWORD': 'chinilila',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -90,7 +82,8 @@ DATABASES = {
 
 
 
-AUTH_USER_MODEL = 'authenticate.Utilizador'
+
+AUTH_USER_MODEL = 'academico.Utilizador'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/index/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
+from django.utils import timezone
 from django.contrib import messages
-from .models import Utilizador
+from academico.models import Utilizador
 
 
 def auth_user(request):
@@ -31,6 +32,8 @@ def auth_user(request):
         )
 
         if user:
+            user.last_login = timezone.now()
+            user.save()
             login(request, user) 
 
             if remember:

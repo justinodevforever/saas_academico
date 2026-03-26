@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0b2c37ca-b45b-4765-a2be-22766b706524" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/academico/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/decorator.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/decorator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0002_diretor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0003_alter_aluno_utilizador.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0004_alter_aluno_bairro_alter_aluno_endereco_completo_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0005_alter_matricula_data_matricula.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0006_matricula_motivo_cancelamento.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0007_remove_professor_cv_remove_professor_data_admissao_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0008_remove_professor_salario_base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0009_alter_professor_carga_horaria_semanal_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/migrations/0010_avaliacao_escola_categoria_escola_classe_escola_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/alunos/detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/alunos/detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/classe/criar_classe.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/classe/editar_classe.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/classe/listar_classe.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/classe/visualizar_classe.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/matriculas/create.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/matriculas/create.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/matriculas/detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/matriculas/detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/turmas/detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/turmas/detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/templates/turmas/list.html" beforeDir="false" afterPath="$PROJECT_DIR$/academico/templates/turmas/list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/academico/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/academico/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administrador/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrador/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administrador/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrador/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administrador/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrador/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/authenticate/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/migrations/0002_backupsistema_escola_logauditoria_escola_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/migrations/0003_alter_utilizador_escola_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/migrations/0004_alter_utilizador_tipo_utilizador.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/migrations/0005_remove_utilizador_activo_remove_utilizador_bi_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/authenticate/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/authenticate/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/director/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/director/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/director/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/director/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/director/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/relatorio/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/relatorio/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/secretario/migrations/__init__.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="3Al09KX0tCLsfsxcCi5rT8xw3QV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "D:/Projectos/SAAS-ACADEMICO",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="SAAS-ACADEMICO" type="Python.DjangoServer" factoryName="Django server">
+      <module name="SAAS-ACADEMICO" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PY-253.31033.139" />
+        <option value="bundled-python-sdk-2653e85de345-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.31033.139" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0b2c37ca-b45b-4765-a2be-22766b706524" name="Changes" comment="" />
+      <created>1773151698437</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773151698437</updated>
+      <workItem from="1773151700001" duration="891000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

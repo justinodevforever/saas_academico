@@ -1,4 +1,5 @@
 {% load static %}
+{% load role_tags %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,19 +15,16 @@
     <script src="{% static 'js/jquery.main.js' %}"></script>
     <script src="{% static 'js/jquery-ui.min.js' %}"></script>
     <script src="{% static 'js/jquery.mask.min.js' %}"></script>
-
     <script src="{% static 'js/chart.js' %}"></script>
 
-    
     <style>
+            @import url(https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap);
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        
-        a{
-            text-decoration: none;
+            box-sizing: border-box;
+            font-family: "Oxanium", sans-serif;
         }
 
         :root {
@@ -59,20 +57,84 @@
             overflow-x: hidden;
         }
 
-        /* Topbar */
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            top: 0;                         
+            left: -100%;
+            width: var(--sidebar-width);
+            height: 100vh;                  
+            background: var(--primary-blue);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1001;                 
+            display: flex;
+            flex-direction: column;
+        }
+
+  
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Admin sempre com sidebar visível em desktop */
+        body.admin-view .sidebar {
+            left: 0;
+        }
+
+        /* Cabeçalho da sidebar — replica estilo da topbar */
+        .sidebar-header {
+            height: var(--topbar-height);
+            min-height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.15rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .sidebar-header .logo i {
+            font-size: 1.5rem;
+        }
+
+        .sidebar-menu-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            
+        }
+
+
+        /* ===== TOPBAR ===== */
         .topbar {
             position: fixed;
             top: 0;
-            left: 0;
+            left: 0;                        /* padrão: começa do início */
             right: 0;
             height: var(--topbar-height);
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--medium-blue) 100%);
+            background: var(--white);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             padding: 0 1.5rem;
             z-index: 1000;
-            color: var(--white);
+            color: var(--primary-blue);
+            transition: left 0.3s ease;
+        }
+
+        /* Admin desktop: topbar começa após a sidebar */
+        body.admin-view .topbar {
+            left: var(--sidebar-width);
         }
 
         .topbar-left {
@@ -84,7 +146,7 @@
         .menu-toggle {
             background: none;
             border: none;
-            color: var(--white);
+            color: var(--primary-blue);
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0.5rem;
@@ -102,6 +164,8 @@
             gap: 0.75rem;
             font-size: 1.25rem;
             font-weight: 600;
+            text-decoration: none;
+            color: #fff;
         }
 
         .logo i {
@@ -185,6 +249,11 @@
             font-weight: 600;
         }
 
+        /* ===== USER PROFILE ===== */
+        .user-profile-wrapper {
+            position: relative;
+        }
+
         .user-profile {
             display: flex;
             align-items: center;
@@ -193,6 +262,8 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.3s;
+            color: #fff;
+            text-decoration: none;
         }
 
         .user-profile:hover {
@@ -203,46 +274,83 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: var(--white);
-            color: var(--primary-blue);
+            background: var(--primary-blue);
+            color: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
         }
 
-        .user-info {
-            display: none;
-        }
-
         .user-name {
             font-size: 0.875rem;
             font-weight: 600;
+            color: var(--primary-blue);
         }
 
         .user-role {
             font-size: 0.75rem;
             opacity: 0.9;
+            color: var(--hover-blue);
         }
 
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: var(--topbar-height);
-            left: -100%;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--topbar-height));
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
             background: var(--white);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-            transition: left 0.3s ease;
-            overflow-y: auto;
-            z-index: 999;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1002;
         }
 
-        .sidebar.active {
-            left: 0;
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-gray);
+            color: #000;
+        }
+
+        .dropdown-item.logout {
+            color: #EF4444;
+        }
+
+        .dropdown-item.logout:hover {
+            background: #FEF2F2;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-gray);
+            margin: 0.25rem 0;
+        }
+
+        /* ===== SIDEBAR MENU ===== */
         .sidebar-menu {
             list-style: none;
             padding: 1rem 0;
@@ -266,16 +374,35 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem 1rem;
-            color: var(--text-dark);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .menu-link1 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--white);
             text-decoration: none;
             border-radius: 8px;
             transition: all 0.3s;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
         .menu-link:hover {
             background: #EFF6FF;
-            color: var(--medium-blue);
+            color: var(--primary-blue);
+        }
+
+        .menu-link1:hover {
+            background: #EFF6FF;
+            color: #a3154a;
         }
 
         .menu-link.active {
@@ -294,11 +421,63 @@
             position: static;
         }
 
-        /* Main Content */
+        .menu-link .arrow {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .menu-link.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        /* Submenu */
+        .submenu {
+            display: none;
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            background-color: var(--border-gray);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+
+        .submenu.show {
+            display: block;
+        }
+
+        .submenu li {
+            padding: 0;
+        }
+
+        .submenu a {
+            display: block;
+            padding: 0.6rem 1rem 0.6rem 3rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            transition: all 0.3s;
+        }
+
+        .submenu a:hover {
+            background-color: #EFF6FF;
+            color: var(--primary-blue);
+        }
+
+        .submenu a.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--medium-blue) 100%);
+            color: var(--white);
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-top: var(--topbar-height);
             padding: 2rem 1rem;
             transition: margin-left 0.3s ease;
+        }
+
+        body.admin-view .main-content {
+            margin-left: var(--sidebar-width);
         }
 
         .main-content.shifted {
@@ -331,7 +510,7 @@
             text-decoration: underline;
         }
 
-        /* Overlay */
+        /* ===== OVERLAY ===== */
         .overlay {
             position: fixed;
             top: 0;
@@ -347,7 +526,7 @@
             display: block;
         }
 
-        /* Cards */
+        /* ===== CARDS ===== */
         .card {
             background: var(--white);
             border-radius: 12px;
@@ -362,7 +541,42 @@
             margin-bottom: 1rem;
         }
 
-        /* Responsive Design */
+
+        /* ===== SCROLLBAR ===== */
+        .sidebar-menu-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+            border-right: 1px solid var(--primary-blue);
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-thumb {
+            background: var(--text-gray);
+            border-radius: 3px;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--text-gray);
+        }
+
+        @media (min-width: 1024px) {
+            body.admin-view .sidebar {
+                left: 0;
+            }
+
+            body.admin-view .main-content {
+                margin-left: var(--sidebar-width);
+                padding: 2rem;
+            }
+
+            body.admin-view .overlay {
+                display: none !important;
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (min-width: 768px) {
             .logo-text {
                 display: inline;
@@ -377,381 +591,381 @@
             }
         }
 
-        @media (min-width: 1024px) {
-            .sidebar {
-                left: 0;
-            }
-
-            .main-content {
-                margin-left: var(--sidebar-width);
-                padding: 2rem;
-            }
-
-            .main-content.shifted {
-                margin-left: var(--sidebar-width);
-            }
-
-            .overlay {
-                display: none !important;
-            }
-        }
-
-        /* Scrollbar */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: var(--border-gray);
-            border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: var(--text-gray);
-        }
-
-
-        .submenu {
-            display: none;
-            list-style: none;
-            padding-left: 40px;
-            background-color: #ddd;
-        }
-
-        .submenu li {
-            padding: 5px 0;
-        }
-
-        .submenu a {
-            text-decoration: none;
-            font-size: 14px;
-            color: #000;
-        }
-
-        .submenu a:hover {
-            color: var(--primary-blue);
-        }
-
-        #textarea{
-            resize: none;
-            height: 50px;
-        }
-
+       
     </style>
 </head>
-<body>
-  
+<body class="{% if request.user|has_any_role:'admin' %}admin-view{% endif %}">
+
     <header class="topbar">
+
         <div class="topbar-left">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
+
+            <button class="menu-toggle" style="color: #a3154a; display: {% if not request.user|is_admin_user %}none{% endif %};" onclick="toggleSidebar()">
+                <i class="fas fa-bars" style="font-size: 10pt;"></i>
             </button>
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span class="logo-text">Sistema Acadêmico</span>
-            </div>
+
+            <a href="/" class="logo" style="color: #a3154a; display: {% if request.user|is_admin_user %}none{% endif %};">
+                <i class="fas fa-graduation-cap" style="font-size: 23pt;"></i>
+                <span class="logo-text">SGA-ISPM</span>
+            </a>
+
+            {% if request.user|is_tecnico_inscricao_user %}
+
+                <a href="/dashboard" class="menu-link1" id="dashboard-tecnico" 
+                    style="font-weight: 500; color: #a3154a;">
+                    <i class="fas fa-tachometer-alt" style="font-size: 10pt;"></i>
+                    <span>Dashboard</span>
+                </a>
+
+            {% endif %}
+
         </div>
 
-        {% if request.user.is_authenticated %}
-            <div class="topbar-right">
-                
-                <div class="user-profile">
+        <div class="topbar-right">
+
+            <div class="user-profile-wrapper">
+                <div class="user-profile" id="userProfileBtn">
                     <div class="user-avatar">SA</div>
                     <div class="user-info">
-                        <div class="user-name">{{user.username}}</div>
-                        <div class="user-role">{{user.get_tipo_utilizador_display}}</div>
+                        <div class="user-name">{{user.nome_completo}}</div>
+                        {% get_roles request.user as user_roles %}
+                        <div class="user-role">{{user_roles|join:", " }}</div>
                     </div>
+                    <i class="fas fa-chevron-down" style="font-size: 0.75rem; margin-left: 0.5rem;" style="font-size: 10pt;"></i>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+
+                    {% if request.user.funcionario  or request.user|is_admin_user%}
+
+                        <a href="/perfil/" class="dropdown-item">
+                            <i class="fas fa-user" style="font-size: 10pt;"></i>
+                            <span>Meu Perfil</span>
+                        </a>
+
+                    {% else %}
+
+                        <a href="/estudante/dashboard/" class="dropdown-item">
+                            <i class="fas fa-user" style="font-size: 10pt;"></i>
+                            <span>Meu Perfil</span>
+                        </a>
+
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <a href="/view_logaout/?next={{ request.path }}" class="dropdown-item logout">
+                        <i class="fas fa-sign-out-alt" style="font-size: 10pt;"></i>
+                        <span>Terminar Sessão</span>
+                    </a>
                 </div>
             </div>
-        {% endif %}
+
+        </div>
     </header>
 
     <aside class="sidebar" id="sidebar">
-        {% if request.user.is_authenticated %}
+
+        <div class="sidebar-header">
+            <a href="/" class="logo">
+                <img src="{% static "image/logo.png" %}" class="link_hidden" alt="logo" width="80">
+                <span class="titulo_logo">SGA-ISPM</span>
+            </a>
+        </div>
+
+        <div class="sidebar-menu-wrapper">
             <ul class="sidebar-menu">
-                <li class="menu-section">Menu Principal</li>
+                <li class="menu-section link_hidden">Menu Principal</li>
                 <li class="menu-item">
-                    <a href="/" class="menu-link " id="dashboard">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="menu-item" >
-                    <a href="/alunos/" class="menu-link" id="estudante">
-                        <i class="fas fa-user-graduate"></i>
-                        <span>Estudante</span>
+                    <a href="/" class="menu-link" id="home">
+                        <i class="fas fa-home" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Página inicial</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="/professores/" class="menu-link" id="professor">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <span>Professores</span>
+                    <a href="/dashboard/" class="menu-link" id="dashboard">
+                        <i class="fas fa-tachometer-alt" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Dashboard</span>
                     </a>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="config-btn">
+                        <i class="fas fa-cog" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Configurações</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-config" class="submenu">
+                        <li><a href="/administrator/lista/turma/" id="turma">Turma</a></li>
+                        <li><a href="/administrator/lista/ano/letivo/" id="ano-letivo">Ano Lectivo</a></li>
+                        <li><a href="/administrator/lista/departamento/" id="departamento">Departamentos</a></li>
+                        <li><a href="/administrator/lista/coordenacao/" id="coordenacao">Coordenações</a></li>
+                        <li><a href="/administrator/lista/curso" id="curso_link">Cursos</a></li>
+                        <li><a href="/administrator/lista/periodo/" id="periodo">Períodos</a></li>
+                        <li><a href="/configuracao/" id="frequencia">Anos de Frequências</a></li>
+                        <li><a href="/configuracao/" id="cadeira">Cadeiras</a></li>
+                        <li><a href="/administrator/gestao/permissao/" id="permissao">Permissões de acesso</a></li>
+                        <li><a href="/configuracao/" id="cadeira">Informações da Instituição</a></li>
+                        <li><a href="/administrator/criar/escola/frequentado/" id="cadeira">Escola anterior</a></li>
+                        <li><a href="/administrator/curso/frequentado/curso/" id="cadeira">Associar os cursos</a></li>
+                        <li><a href="/administrator/configuracoes/gerais/" id="config">Configurações Gerais</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Usuários</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="atendiemnto-btn">
+                        <i class="fas fa-users" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Atendimentos</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-atendiemnto" class="submenu">
+                        <li><a href="/configuracao/" id="inscricao">Inscrição</a></li>
+                        <li><a href="/candidato/lista/matricula/" id="matricular-turma">Matricular na Turma</a></li>
+                        <li><a href="/listar/usuario/" id="matricular-cadeira">Matricular na Cadeira</a></li>
+                        <li><a href="/confirmacao/admin/" id="confirmacao">Confirmação de Matrícula</a></li>
+                        <li><a href="/configuracao/" id="propina">Pagar Propina</a></li>
+                        <li><a href="/configuracao/" id="tratar-documento">Tratar Documento</a></li>
+                        <li><a href="/configuracao/" id="trancar-matricula">Trancar Matícula</a></li>
+                        <li><a href="/configuracao/" id="mudar-turma">Mudar de Turma</a></li>
+                        <li><a href="/configuracao/" id="desmatricula-turma">Desmatricular da turma</a></li>
+                        <li><a href="/configuracao/" id="cancelar-matricula">Cancelar Matrícula</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-section link_hidden">Controlo</li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="inscricao-btn">
+                        <i class="fas fa-clipboard-list" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Gerir Inscrição</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-inscricao" class="submenu">
+                        <li><a href="/candidato/dashboard/tecnico/inscricao/" id="matricula">Dashboard de Inscrição</a></li>
+                        <li><a href="/relatorio/lista/curso" id="lista_curso">Lista Por Curso</a></li>
+                        <li><a href="/relatorio/lista/distribuicao/" id="turma">Distribuição Por Sala</a></li>
+                        <li><a href="/candidato/lancamento/nota/" id="turma">Lançamento de notas</a></li>
+                    </ul>
                 </li>
                 <li class="menu-item">
-                    <a href="/disciplinas/" class="menu-link" id="disciplina">
-                        <i class="fas fa-book"></i>
-                        <span>Disciplinas</span>
+                    <a href="/administrator/gerir-rupe" class="menu-link" id="rupe">
+                        <i class="fas fa-tachometer-alt" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Gestão de RUPE</span>
                     </a>
                 </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="funcionario-btn">
+                        <i class="fas fa-people-carry" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Funcionários</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-funcionario" class="submenu">
+                        <li><a href="/administrator/lista/funcionario/" id="funcionario">Lista</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="propina-btn">
+                        <i class="fas fa-dollar" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Propina</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-propina" class="submenu">
+                        <li><a href="/configuracao/" id="config">Pagar propina</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Recibo da propina</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="pedido-documento-btn">
+                        <i class="fas fa-file-text" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Pedidos de Documentos</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-pedido-documento" class="submenu">
+                        <li><a href="/configuracao/" id="config">Configurações Gerais</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Usuários</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-section link_hidden">Gestão Acadêmica</li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="ingresso-universidade-btn">
+                        <i class="fas fa-school" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Ingresso a Universidade</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-ingresso-universidade" class="submenu">
+                        <li><a href="/configuracao/" id="config">Configurações Gerais</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Usuários</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="estudante-btn">
+                        <i class="fas fa-graduation-cap" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Estudantes</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-estudante" class="submenu">
+                        <li><a href="/configuracao/" id="config">Configurações Gerais</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Usuários</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-link" id="area-academica-btn">
+                        <i class="fas fa-cog" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Área Acadêmica</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-area-academica" class="submenu">
+                        <li><a href="/listar_disciplina/" id="cadeira">Cadeira</a>
+                        <li><a href="/lista_matricula/" id="matricula">Matrículas</a></li>
+                        <li><a href="/reconfirmacao/" id="reconfirmacao">Reconfirmação</a></li>
+                        <li><a href="/listar_turma/" id="turma">Turma</a></li>
+                        <li><a href="/certificados/" id="certificado">Lista de certificados</a></li>
+                        <li><a href="/listar_notas/" id="nota">Notas</a></li>
+                        <li><a href="/listar_classe/" id="classe">Classe</a></li>
+                </li>
+                    </ul>
+                </li>
+                
                 <li class="menu-item">
                     <a href="/listar_horarios/" class="menu-link" id="horario">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Horários</span>
+                        <i class="fas fa-calendar-alt" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Horários</span>
                     </a>
                 </li>
 
-                <li class="menu-section">Gestão Acadêmica</li>
+                <li class="menu-section link_hidden">Relatórios</li>
+
                 <li class="menu-item">
-                    <a href="/matriculas/" class="menu-link" id="matricula">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Matrículas</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/reconfirmacao/" class="menu-link" id="reconfirmacao">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Reconfirmação</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/turmas/" class="menu-link" id="turma">
-                        <i class="fa fa-users" aria-hidden="true"></i>
-                        <span>Turma</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/certificados/" class="menu-link" id="certificado">
-                        <i class="fa fa-users" aria-hidden="true"></i>
-                        <span>Lista de certificados</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/listar_notas/" class="menu-link" id="nota">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Notas</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/listar_classe/" class="menu-link" id="classe">
-                        <i class="fas fa-user-check"></i>
-                        <span>Classe</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <span href="#" class="menu-link" style="cursor: pointer;" id="relatorio-btn">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Relatórios</span>
+                    <span class="menu-link" id="relatorio-btn">
+                        <i class="fas fa-print" style="font-size: 10pt;"></i>
+                        <span class="link_hidden">Relatórios</span>
+                        <i class="fas fa-chevron-right arrow link_hidden" style="font-size: 10pt;"></i>
                     </span>
-
                     <ul id="submenu-relatorio" class="submenu">
                         <li><a href="/relatorio/notas/">Relatório de Notas</a></li>
+                        <li><a href="/relatorio/notas/turma/">Relatório de Notas Disciplina</a></li>
                         <li><a href="/relatorio/estudantes/">Relatório de Estudantes</a></li>
                         <li><a href="/relatorio/professores/">Relatório de Professores</a></li>
                         <li><a href="/relatorio/turmas/">Relatório de Turmas</a></li>
                     </ul>
                 </li>
 
+                <li class="menu-item">
+                    <span class="menu-link" id="relatorio-financeiro-btn">
+                        <i class="fas fa-print" style="font-size: 10pt;"></i>
+                        <span>Relatório Financeiro</span>
+                        <i class="fas fa-chevron-right arrow" style="font-size: 10pt;"></i>
+                    </span>
+                    <ul id="submenu-relatorio-financeiro" class="submenu">
+                        <li><a href="/configuracao/" id="config">Configurações Gerais</a></li>
+                        <li><a href="/listar/usuario/" id="usuario">Usuários</a></li>
+                    </ul>
+                </li>
 
-                <li class="menu-section">Configurações</li>
-                <li class="menu-item">
-                    <a href="/configuracao/" class="menu-link" id="config">
-                        <i class="fas fa-cog"></i>
-                        <span>Configurações</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/listar_usuario/" class="menu-link" id="usuario">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Usuários</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="/logout/?next={{ request.path }}" class="menu-link bg-danger text-white">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Sair</span>
-                    </a>
-                </li>
+                
+
             </ul>
-        {% endif %}
+        </div>
+
     </aside>
 
-    
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-   
     <main class="main-content" id="mainContent">
-
         {% block content %}
-      
         {% endblock %}
     </main>
 
     <script>
 
-        document.getElementById("relatorio-btn").addEventListener("click", function(e) {
-            e.preventDefault(); 
-            const submenu = document.getElementById("submenu-relatorio");
+        // Toggle de submenus
+        function toggleSubmenu(buttonId, submenuId) {
+            const button = document.getElementById(buttonId);
+            const submenu = document.getElementById(submenuId);
 
-            submenu.style.display = (submenu.style.display === "block") ? "none" : "block";
-        });
+            button.addEventListener("click", function(e) {
+                e.preventDefault();
+                submenu.classList.toggle('show');
+                button.classList.toggle('expanded');
+            });
+        }
+
+        // Inicializar submenus
+        toggleSubmenu('inscricao-btn', 'submenu-inscricao');
+        toggleSubmenu('relatorio-btn', 'submenu-relatorio');
+        toggleSubmenu('config-btn', 'submenu-config');
+        
+        toggleSubmenu('atendiemnto-btn', 'submenu-atendiemnto');
+        toggleSubmenu('relatorio-financeiro-btn', 'submenu-relatorio-financeiro');
+        toggleSubmenu('funcionario-btn', 'submenu-funcionario');
+        toggleSubmenu('ingresso-universidade-btn', 'submenu-ingresso-universidade');
+        
+        toggleSubmenu('estudante-btn', 'submenu-estudante');
+        toggleSubmenu('area-academica-btn', 'submenu-area-academica');
+        toggleSubmenu('pedido-documento-btn', 'submenu-pedido-documento');
+        toggleSubmenu('propina-btn', 'submenu-propina');
+
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
             const mainContent = document.getElementById('mainContent');
-            
+
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-            
-            // Em telas maiores, ajusta o conteúdo
-            if (window.innerWidth >= 1024) {
+
+            if (window.innerWidth >= 1024 && !document.body.classList.contains('admin-view')) {
                 mainContent.classList.toggle('shifted');
             }
         }
 
-        // Fecha sidebar ao clicar em um link em mobile
-        document.querySelectorAll('.menu-link').forEach(link => {
+        // Fecha sidebar ao clicar em link (mobile / não-admin)
+        document.querySelectorAll('.submenu a, .sidebar-menu > .menu-item > .menu-link[href]').forEach(link => {
             link.addEventListener('click', function() {
-                if (window.innerWidth < 1024) {
-                    toggleSidebar();
+                if (window.innerWidth < 1024 || !document.body.classList.contains('admin-view')) {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
                 }
             });
         });
 
         // Ajusta layout ao redimensionar
         window.addEventListener('resize', function() {
-            if (window.innerWidth >= 1024) {
+            if (window.innerWidth >= 1024 && !document.body.classList.contains('admin-view')) {
                 document.getElementById('sidebar').classList.remove('active');
                 document.getElementById('overlay').classList.remove('active');
             }
         });
 
-        const professor = document.getElementById('professor')
-        const estudante = document.getElementById('estudante')
-        const matricula = document.getElementById('matricula')
-        const disciplina = document.getElementById('disciplina')
-        const turma = document.getElementById('turma')
-        const nota = document.getElementById('nota')
-        const usuario = document.getElementById('usuario')
-        const classe = document.getElementById('classe')
-        const horario = document.getElementById('horario')
-        const certificado = document.getElementById('certificado')
-        const dashboard = document.getElementById('dashboard')
-        const reconfirmacao = document.getElementById('reconfirmacao')
 
-        if(
-            window.location.pathname == '/'
-            
-        ){
-            dashboard.classList.add('active')
-        }
+        // ===== Dropdown de perfil =====
+        const userProfileBtn = document.getElementById('userProfileBtn');
+        const userDropdown = document.getElementById('userDropdown');
 
-        if(
-            window.location.pathname == '/reconfirmacao/'
-            
-        ){
-            reconfirmacao.classList.add('active')
-        }
-        
-        if(
-            window.location.pathname == '/certificados/' ||
-            window.location.pathname.split('/')[1] == 'certificados'
-            
-        ){
-            certificado.classList.add('active')
-        }
+        userProfileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
 
-        if(
-            window.location.pathname == '/listar_horarios/' ||
-            window.location.pathname == '/criar_horario/' ||
-            window.location.pathname.split('/')[1] == 'editar_horario'
-            
-        ){
-            horario.classList.add('active')
-        }
+        document.addEventListener('click', function(e) {
+            if (!userProfileBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
 
-        if(
-            window.location.pathname == '/criar_classe/' ||
-            window.location.pathname == '/listar_classe/' ||
-            window.location.pathname.split('/')[1] == 'visualizar_classe' ||
-            window.location.pathname.split('/')[1] == 'editar_classe'
-        ){
-            classe.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/criar_usuario/' ||
-            window.location.pathname == '/listar_usuario/' ||
-            window.location.pathname.split('/')[1] == 'visualizar_usuario' ||
-            window.location.pathname.split('/')[1] == 'editar_usuario'
-        ){
-            usuario.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/criar_notas/' ||
-            window.location.pathname == '/listar_notas/' ||
-            window.location.pathname.split('/')[1] == 'adicionar_notas' ||
-            window.location.pathname.split('/')[1] == 'lista_disciplina' ||
-            window.location.pathname.split('/')[1] == 'pauta_turma' ||
-            window.location.pathname.split('/')[1] == 'editar_notas'
-        ){
-            nota.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/turmas/criar' ||
-            window.location.pathname.split('/')[1] == 'turmas' ||
-            window.location.pathname.split('/')[1] == 'listar_turma_estudantes' ||
-            window.location.pathname.split('/')[1] == 'visualizar_turma' ||
-            window.location.pathname.split('/')[1] == 'editar_turma' ||
-            window.location.pathname == '/turmas/' 
-        ){
-            turma.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/disciplinas/crair/' ||
-            window.location.pathname.split('/')[1] == 'disciplinas' ||
-            window.location.pathname.split('/')[1] == 'disciplinas' ||
-            window.location.pathname == '/listar_disciplina/' 
-        ){
-            disciplina.classList.add('active')
-        }
-        
-        if(
-            window.location.pathname == '/professores/' ||
-            window.location.pathname == '/professores/criar' ||
-            window.location.pathname.split('/')[1] == 'professores'
-        ){
-            professor.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/matriculas/' ||
-            window.location.pathname == '/matriculas/criar/' ||
-            window.location.pathname.split('/')[1] == 'matriculas' ||
-            window.location.pathname.split('/')[1] == 'matriculas' 
-
-        ){
-            matricula.classList.add('active')
-        }
-
-        if(
-            window.location.pathname == '/alunos/criar/' ||
-            window.location.pathname == '/alunos/' ||
-            window.location.pathname.split('/')[1] == 'alunos' ||
-            window.location.pathname.split('/')[1] == 'visualizar_estudante'
-
-        ){
-            estudante.classList.add('active')
-        }
-
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                userDropdown.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
